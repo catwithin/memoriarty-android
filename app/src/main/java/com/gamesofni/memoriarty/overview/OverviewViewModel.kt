@@ -4,13 +4,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gamesofni.memoriarty.Config
 import com.gamesofni.memoriarty.network.MemoriartyApi
 import com.gamesofni.memoriarty.network.RepeatItem
 import kotlinx.coroutines.launch
 
-
-
-private const val COOKIE = "token=secretToken"
 
 
 enum class MemoriartyApiStatus { LOADING, ERROR, DONE }
@@ -35,7 +33,7 @@ class OverviewViewModel : ViewModel() {
             // TODO: how to make it auto-refresh when connection is re-established??
             _status.value = MemoriartyApiStatus.LOADING
             try {
-                val today = MemoriartyApi.retrofitService.getRepeats(COOKIE)
+                val today = MemoriartyApi.retrofitService.getRepeats(Config().COOKIE)
                 _repeats.value = today.sessions
 
                 _status.value = MemoriartyApiStatus.DONE
