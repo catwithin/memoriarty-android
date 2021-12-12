@@ -24,6 +24,10 @@
         <variable
             name="repeat"
             type="com.gamesofni.memoriarty.network.RepeatItem" />
+        <variable
+            name="clickListener"
+            type="com.gamesofni.memoriarty.overview.RepeatListener"
+            />
     </data>
 
     <TextView
@@ -33,6 +37,7 @@
         android:adjustViewBounds="true"
         android:padding="2dp"
         android:text="@{repeat.description}"
+        android:onClick="@{() -> clickListener.onClick(repeat)}"
         tools:text="Sample Repeat"
     />
 

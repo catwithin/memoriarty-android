@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/navigation"
+    app:startDestination="@id/overviewFragment">
+
+    <fragment
+        android:id="@+id/repeatDetailFragment"
+        android:name="com.gamesofni.memoriarty.repeat.RepeatDetailFragment"
+        android:label="fragment_repeat_detail"
+        tools:layout="@layout/fragment_repeat_detail" >
+        <argument
+            android:name="description"
+            app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/overviewFragment"
+        android:name="com.gamesofni.memoriarty.overview.OverviewFragment"
+        android:label="OverviewFragment" >
+        <action
+            android:id="@+id/action_overviewFragment_to_repeatDetailFragment"
+            app:destination="@id/repeatDetailFragment" />
+    </fragment>
+</navigation>

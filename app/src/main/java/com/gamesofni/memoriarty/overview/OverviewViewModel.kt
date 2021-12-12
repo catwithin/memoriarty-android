@@ -24,6 +24,11 @@ class OverviewViewModel : ViewModel() {
     val status: LiveData<MemoriartyApiStatus> = _status
     val repeats: LiveData<List<RepeatItem>> = _repeats
 
+
+    private val _navigateToRepeatDetail = MutableLiveData<String>()
+    val navigateToRepeatDetail
+        get() = _navigateToRepeatDetail
+
     init {
         getTodayRepeats()
     }
@@ -44,5 +49,13 @@ class OverviewViewModel : ViewModel() {
                 _repeats.value = listOf()
             }
         }
+    }
+
+    fun onRepeatClicked(description: String) {
+        _navigateToRepeatDetail.value = description
+    }
+
+    fun onRepeatDetailNavigated() {
+        _navigateToRepeatDetail.value = null
     }
 }

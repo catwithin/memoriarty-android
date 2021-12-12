@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.gamesofni.memoriarty.databinding.TodayGridViewItemBinding
 import com.gamesofni.memoriarty.network.RepeatItem
 
-class RepeatsGridAdapter :
+class RepeatsGridAdapter(val clickListener: RepeatListener) :
     ListAdapter<RepeatItem, RepeatsGridAdapter.RepeatsViewHolder>(DiffCallback) {
 
     /**
@@ -18,8 +18,9 @@ class RepeatsGridAdapter :
     class RepeatsViewHolder(
         private var binding: TodayGridViewItemBinding
     ) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(repeat: RepeatItem) {
+        fun bind(repeat: RepeatItem, clickListener: RepeatListener) {
             binding.repeat = repeat
+            binding.clickListener = clickListener
             // This is important, because it forces the data binding to execute immediately,
             // which allows the RecyclerView to make the correct view size measurements
             binding.executePendingBindings()
@@ -58,6 +59,10 @@ class RepeatsGridAdapter :
      */
     override fun onBindViewHolder(holder: RepeatsViewHolder, position: Int) {
         val repeat = getItem(position)
-        holder.bind(repeat)
+        holder.bind(repeat, clickListener)
     }
+}
+
+class RepeatListener(val clickListener: (description: String) -> Unit) {
+    fun onClick(repeat: RepeatItem) = clickListener(repeat.description)
 }
