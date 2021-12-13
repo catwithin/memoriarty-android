@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/repeatDetailFragment"
         android:name="com.gamesofni.memoriarty.repeat.RepeatDetailFragment"
-        android:label="fragment_repeat_detail"
+        android:label="@string/detailFragmentName"
         tools:layout="@layout/fragment_repeat_detail" >
         <argument
             android:name="description"
@@ -17,7 +17,7 @@
     <fragment
         android:id="@+id/overviewFragment"
         android:name="com.gamesofni.memoriarty.overview.OverviewFragment"
-        android:label="OverviewFragment" >
+        android:label="@string/overviewName" >
         <action
             android:id="@+id/action_overviewFragment_to_repeatDetailFragment"
             app:destination="@id/repeatDetailFragment" />
