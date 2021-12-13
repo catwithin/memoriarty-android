@@ -22,4 +22,9 @@
             android:id="@+id/action_overviewFragment_to_repeatDetailFragment"
             app:destination="@id/repeatDetailFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/aboutFragment"
+        android:name="com.gamesofni.memoriarty.support.AboutFragment"
+        android:label="@string/aboutFragmentName"
+        tools:layout="@layout/fragment_about" />
 </navigation>

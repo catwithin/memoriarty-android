@@ -4,4 +4,7 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="overviewName">Today Repeats</string>
     <string name="detailFragmentName">Repeat\'s Details</string>
+    <string name="about_fragment_text">Here will be words about Memoriarty</string>
+    <string name="about">About</string>
+    <string name="aboutFragmentName">About Memoriarty</string>
 </resources>

@@ -2,13 +2,13 @@ package com.gamesofni.memoriarty.overview
 
 import android.os.Bundle
 import android.text.Layout
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.FragmentNavigator
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.ui.NavigationUI
 import com.gamesofni.memoriarty.R
 import com.gamesofni.memoriarty.databinding.TodayFragmentOverviewBinding
 import com.gamesofni.memoriarty.repeat.RepeatDetailFragment
@@ -51,6 +51,19 @@ class OverviewFragment : Fragment() {
             }
         })
 
+        setHasOptionsMenu(true)
+
         return binding.root
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.options_menu, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return NavigationUI.
+            onNavDestinationSelected(item,requireView().findNavController())
+                || super.onOptionsItemSelected(item)
     }
 }
