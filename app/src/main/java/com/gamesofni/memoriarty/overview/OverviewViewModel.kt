@@ -25,7 +25,7 @@ class OverviewViewModel : ViewModel() {
     val repeats: LiveData<List<RepeatItem>> = _repeats
 
 
-    private val _navigateToRepeatDetail = MutableLiveData<String>()
+    private val _navigateToRepeatDetail = MutableLiveData<String?>()
     val navigateToRepeatDetail
         get() = _navigateToRepeatDetail
 
