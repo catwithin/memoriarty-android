@@ -10,4 +10,6 @@
     <string name="detail_fragment">Repeat\'s details</string>
     <string name="list_of_projects">Projects</string>
     <string name="list_of_repeats">Today</string>
+    <string name="share_memoriarty_repeat"><![CDATA[I am learning with #Memoriarty about %1$s!]]></string>
+    <string name="share">Share</string>
 </resources>
