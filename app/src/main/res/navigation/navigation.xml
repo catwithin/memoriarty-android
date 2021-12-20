@@ -27,4 +27,9 @@
         android:name="com.gamesofni.memoriarty.support.AboutFragment"
         android:label="@string/aboutFragmentName"
         tools:layout="@layout/fragment_about" />
+    <fragment
+        android:id="@+id/projectListFragment"
+        android:name="com.gamesofni.memoriarty.project.ProjectListFragment"
+        android:label="fragment_project_list"
+        tools:layout="@layout/fragment_project_list" />
 </navigation>
