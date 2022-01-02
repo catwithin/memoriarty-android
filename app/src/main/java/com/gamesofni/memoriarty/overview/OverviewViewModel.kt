@@ -8,7 +8,7 @@ import com.gamesofni.memoriarty.Config
 import com.gamesofni.memoriarty.network.MemoriartyApi
 import com.gamesofni.memoriarty.network.RepeatItem
 import kotlinx.coroutines.launch
-
+import timber.log.Timber
 
 
 enum class MemoriartyApiStatus { LOADING, ERROR, DONE }
@@ -18,18 +18,18 @@ class OverviewViewModel : ViewModel() {
 
     // The internal MutableLiveData that stores the status of the most recent request
     private val _status = MutableLiveData<MemoriartyApiStatus>()
-    private val _repeats = MutableLiveData<List<RepeatItem>>()
-
     // The external immutable LiveData for the request status
     val status: LiveData<MemoriartyApiStatus> = _status
-    val repeats: LiveData<List<RepeatItem>> = _repeats
 
+    private val _repeats = MutableLiveData<List<RepeatItem>>()
+    val repeats: LiveData<List<RepeatItem>> = _repeats
 
     private val _navigateToRepeatDetail = MutableLiveData<String?>()
     val navigateToRepeatDetail
         get() = _navigateToRepeatDetail
 
     init {
+        Timber.i("OverviewViewModel initialized")
         getTodayRepeats()
     }
 
@@ -57,5 +57,10 @@ class OverviewViewModel : ViewModel() {
 
     fun onRepeatDetailNavigated() {
         _navigateToRepeatDetail.value = null
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        Timber.i("OverviewViewModel destroyed")
     }
 }
