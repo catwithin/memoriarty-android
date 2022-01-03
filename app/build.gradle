@@ -2,7 +2,7 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
 
-    // is needed for dataBinding
+    // is needed for dataBinding and room
     id 'kotlin-kapt'
 
     // safeargs
@@ -20,6 +20,13 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        // export schemas location for Room db
+        kapt {
+            arguments {
+                arg("room.schemaLocation", "$projectDir/schemas")
+            }
+        }
     }
 
     buildTypes {
@@ -69,6 +76,11 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0'
     // LiveData
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.4.0'
+
+    // Room and other Lifecycle
+    implementation "androidx.room:room-runtime:2.4.0"
+    kapt "androidx.room:room-compiler:2.4.0"
+    implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
 
     // Moshi JSON parser
     implementation 'com.squareup.moshi:moshi-kotlin:1.9.3'
