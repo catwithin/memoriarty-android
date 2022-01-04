@@ -5,7 +5,13 @@ import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
 import android.widget.Toast
+import androidx.lifecycle.ViewModelProvider
 import com.gamesofni.memoriarty.R
+import com.gamesofni.memoriarty.database.MemoriartyDatabase
+import com.gamesofni.memoriarty.databinding.FragmentRepeatDetailBinding
+import com.gamesofni.memoriarty.databinding.TodayFragmentOverviewBinding
+import com.gamesofni.memoriarty.overview.OverviewViewModel
+import com.gamesofni.memoriarty.overview.OverviewViewModelFactory
 
 
 class RepeatDetailFragment : Fragment() {
@@ -19,7 +25,19 @@ class RepeatDetailFragment : Fragment() {
 
         setHasOptionsMenu(true)
 
-        return inflater.inflate(R.layout.fragment_repeat_detail, container, false)
+
+        val application = requireNotNull(this.activity).application
+        val repeatsDao = MemoriartyDatabase.getInstance(application).repeatsDao
+        val viewModelFactory = RepeatViewModelFactory(repeatsDao, application)
+        val viewModel = ViewModelProvider(
+            this, viewModelFactory).get(RepeatViewModel::class.java)
+
+        val binding = FragmentRepeatDetailBinding.inflate(inflater)
+        binding.setLifecycleOwner(this)
+
+        binding.viewModel = viewModel
+
+        return binding.root
     }
 
 

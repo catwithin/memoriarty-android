@@ -15,7 +15,7 @@ data class RepeatEntity (
     @ColumnInfo(name = "repeat_id")
     var repeatId: String = "",
 
-    var description: String = "",
+    var description: String = "Test",
 
     @ColumnInfo(name = "date_created")
     var repeatCreated: Date = Date(),
