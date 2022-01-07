@@ -11,14 +11,25 @@ import timber.log.Timber
 
 
 class RepeatViewModel (
+    private var repeatId: String?,
     val repeatsDao: RepeatsDao,
-    application: Application
+    application: Application,
 ) : AndroidViewModel(application) {
 
-    private var repeat = MutableLiveData<RepeatEntity?>()
+    var repeat = MutableLiveData<RepeatEntity?>()
+    var idString = Transformations.map(repeat) { r -> r?.id.toString() }
+
     val repeatTransformed = Transformations.map(repeat) { repeat ->
         formatToHtml(repeat, application.resources)
     }
+
+    private val _navigateToEditRepeat = MutableLiveData<RepeatEntity?>()
+    val navigateToEditRepeat: LiveData<RepeatEntity?>
+        get() = _navigateToEditRepeat
+
+    private val _navigateToDetailRepeat = MutableLiveData<RepeatEntity?>()
+    val navigateToDetailRepeat: LiveData<RepeatEntity?>
+        get() = _navigateToDetailRepeat
 
     init {
         initializeRepeat()
@@ -31,13 +42,13 @@ class RepeatViewModel (
 
     private fun initializeRepeat() {
         viewModelScope.launch {
-            repeat.value = getRepeatFromDatabase()
+            repeat.value = getRepeatFromDatabase(repeatId ?: "Test")
         }
     }
 
 
-    private suspend fun getRepeatFromDatabase(): RepeatEntity? {
-        return repeatsDao.getRepeat()
+    private suspend fun getRepeatFromDatabase(id: String): RepeatEntity? {
+        return repeatsDao.getRepeatByDescription(id)
     }
 
     fun onAddRepeat() {
@@ -45,11 +56,37 @@ class RepeatViewModel (
         viewModelScope.launch {
             val newRepeat = RepeatEntity()
             insert(newRepeat)
-            repeat.value = getRepeatFromDatabase()
+            repeat.value = getRepeatFromDatabase("Test")
         }
     }
 
     private suspend fun insert(repeat: RepeatEntity) {
         repeatsDao.insert(repeat)
+    }
+
+    fun doneNavigatingToEdit() {
+        _navigateToEditRepeat.value = null
+    }
+
+    fun doneNavigatingToDetail() {
+        _navigateToDetailRepeat.value = null
+    }
+
+    fun onEditRepeat() {
+        _navigateToEditRepeat.value = repeat.value
+    }
+
+    fun onDoneEdit() {
+        viewModelScope.launch {
+        // In Kotlin, the return@label syntax is used for specifying which function among
+        // several nested ones this statement returns from.
+        // In this case, we are specifying to return from launch(),
+        // not the lambda.
+            val oldRepeat = repeatsDao.get(repeat.value!!.id) ?: return@launch
+            oldRepeat.description = repeat.value!!.description
+            repeatsDao.update(oldRepeat)
+
+            _navigateToDetailRepeat.value = repeat.value
+        }
     }
 }

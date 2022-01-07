@@ -3,16 +3,17 @@ package com.gamesofni.memoriarty.overview
 import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.NavigationUI
 import com.gamesofni.memoriarty.R
+import com.gamesofni.memoriarty.database.MemoriartyDatabase
 import com.gamesofni.memoriarty.databinding.TodayFragmentOverviewBinding
 
 class OverviewFragment : Fragment() {
 
-    private val viewModel: OverviewViewModel by viewModels()
+//    private val viewModel: OverviewViewModel by viewModels()
 
     /**
      * Inflates the layout with Data Binding, sets its lifecycle owner to the OverviewFragment
@@ -24,11 +25,15 @@ class OverviewFragment : Fragment() {
     ): View? {
         val binding = TodayFragmentOverviewBinding.inflate(inflater)
 
-        // Allows Data Binding to Observe LiveData with the lifecycle of this Fragment
-        binding.lifecycleOwner = this
 
-        // Giving the binding access to the OverviewViewModel
-        binding.viewModel = viewModel
+
+        val application = requireNotNull(this.activity).application
+        val repeatsDao = MemoriartyDatabase.getInstance(application).repeatsDao
+        val viewModelFactory = OverviewViewModelFactory(repeatsDao, application)
+        val viewModel = ViewModelProvider(
+            this, viewModelFactory).get(OverviewViewModel::class.java)
+
+
 
         binding.photosGrid.adapter = RepeatsGridAdapter( RepeatListener { description ->
 //            Toast.makeText(context, description, Toast.LENGTH_LONG).show()
@@ -49,6 +54,11 @@ class OverviewFragment : Fragment() {
         })
 
         setHasOptionsMenu(true)
+        // Allows Data Binding to Observe LiveData with the lifecycle of this Fragment
+        binding.setLifecycleOwner(this)
+
+        // Giving the binding access to the OverviewViewModel
+        binding.viewModel = viewModel
 
         return binding.root
     }

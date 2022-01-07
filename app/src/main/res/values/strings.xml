@@ -14,4 +14,6 @@
     <string name="share">Share</string>
     <string name="title"><![CDATA[<h3>A Note</h3>]]></string>
     <string name="fancy_formatting"><![CDATA[<b>Myaf\': </b>]]></string>
+    <string name="description_lable">description: </string>
+    <string name="id_lable">id: </string>
 </resources>

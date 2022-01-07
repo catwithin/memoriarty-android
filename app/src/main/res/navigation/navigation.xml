@@ -13,6 +13,9 @@
         <argument
             android:name="description"
             app:argType="string" />
+        <action
+            android:id="@+id/action_repeatDetailFragment_to_repeatEditFragment"
+            app:destination="@id/repeatEditFragment" />
     </fragment>
     <fragment
         android:id="@+id/overviewFragment"
@@ -32,4 +35,18 @@
         android:name="com.gamesofni.memoriarty.project.ProjectListFragment"
         android:label="fragment_project_list"
         tools:layout="@layout/fragment_project_list" />
+    <fragment
+        android:id="@+id/repeatEditFragment"
+        android:name="com.gamesofni.memoriarty.repeat.RepeatEditFragment"
+        android:label="Edit Repeat" >
+        <argument
+            android:name="description"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_repeatEditFragment_to_repeatDetailFragment"
+            app:destination="@id/repeatDetailFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:popEnterAnim="@anim/slide_in_right"
+        />
+    </fragment>
 </navigation>

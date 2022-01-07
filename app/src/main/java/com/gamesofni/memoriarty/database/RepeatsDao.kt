@@ -28,6 +28,10 @@ interface RepeatsDao {
 
     @Query("SELECT * FROM repeats WHERE next_repeat = :today ORDER BY next_repeat DESC")
     fun getTodayRepeats(today: Date): LiveData<List<RepeatEntity>>
+
+    @Query("SELECT * FROM repeats WHERE description = :desc LIMIT 1")
+    suspend fun getRepeatByDescription(desc: String): RepeatEntity?
+
 }
 
 

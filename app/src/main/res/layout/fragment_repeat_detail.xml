@@ -15,7 +15,6 @@
         android:layout_height="match_parent"
         tools:context=".repeat.RepeatDetailFragment">
 
-        <!-- TODO: Update blank fragment layout -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -46,8 +45,8 @@
 
             <com.nambimobile.widgets.efab.FabOption
                 android:id="@+id/add_repeat"
-                android:onClick="@{() -> viewModel.onAddRepeat()}"
                 app:label_text="New"
+                android:onClick="@{() -> viewModel.onAddRepeat()}"
 
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -62,6 +61,7 @@
             <com.nambimobile.widgets.efab.FabOption
                 android:id="@+id/edit_repeat"
                 app:label_text="Edit"
+                android:onClick="@{() -> viewModel.onEditRepeat()}"
 
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

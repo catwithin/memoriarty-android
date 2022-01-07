@@ -1,10 +1,9 @@
 package com.gamesofni.memoriarty.overview
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import android.app.Application
+import androidx.lifecycle.*
 import com.gamesofni.memoriarty.Config
+import com.gamesofni.memoriarty.database.RepeatsDao
 import com.gamesofni.memoriarty.network.MemoriartyApi
 import com.gamesofni.memoriarty.network.RepeatItem
 import kotlinx.coroutines.launch
@@ -14,7 +13,10 @@ import timber.log.Timber
 enum class MemoriartyApiStatus { LOADING, ERROR, DONE }
 
 
-class OverviewViewModel : ViewModel() {
+class OverviewViewModel (
+    repeatsDao: RepeatsDao,
+    application: Application
+) : AndroidViewModel(application) {
 
     // The internal MutableLiveData that stores the status of the most recent request
     private val _status = MutableLiveData<MemoriartyApiStatus>()
