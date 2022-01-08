@@ -1,37 +1,16 @@
 package com.gamesofni.memoriarty.overview
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.gamesofni.memoriarty.databinding.TodayGridViewItemBinding
 import com.gamesofni.memoriarty.network.RepeatItem
 
 class RepeatsGridAdapter(val clickListener: RepeatListener) :
-    RecyclerView.Adapter<RepeatsViewHolder>() {
-
-    var data =  listOf<RepeatItem>()
-        set(value) {
-            field = value
-            notifyDataSetChanged()
-        }
-
-    override fun getItemCount() = data.size
-
-
-    /**
-     * Allows the RecyclerView to determine which items have changed when the [List] of
-     * [RepeatItem] has been updated.
-     */
-    companion object DiffCallback : DiffUtil.ItemCallback<RepeatItem>() {
-        override fun areItemsTheSame(oldItem: RepeatItem, newItem: RepeatItem): Boolean {
-            return oldItem._id == newItem._id
-        }
-
-        override fun areContentsTheSame(oldItem: RepeatItem, newItem: RepeatItem): Boolean {
-            return oldItem.description == newItem.description
-        }
-    }
+    ListAdapter<RepeatItem, RepeatsViewHolder>(RepeatItemDiffCallback()) {
 
     /**
      * Create new [RecyclerView] item views (invoked by the layout manager)
@@ -48,7 +27,7 @@ class RepeatsGridAdapter(val clickListener: RepeatListener) :
      * Replaces the contents of a view (invoked by the layout manager)
      */
     override fun onBindViewHolder(holder: RepeatsViewHolder, position: Int) {
-        val repeat = data[position]
+        val repeat = getItem(position)
         holder.bind(repeat, clickListener)
 
         // All of this deals w ViewHolder and should be inside bind fun
@@ -89,6 +68,21 @@ class RepeatsViewHolder private constructor(private var binding: TodayGridViewIt
                     .inflate(LayoutInflater.from(parent.context))
             )
         }
+    }
+}
+
+/**
+ * Allows the RecyclerView to determine which items have changed when the [List] of
+ * [RepeatItem] has been updated.
+ */
+class RepeatItemDiffCallback : DiffUtil.ItemCallback<RepeatItem>() {
+    override fun areItemsTheSame(oldItem: RepeatItem, newItem: RepeatItem): Boolean {
+        return oldItem._id == newItem._id
+    }
+
+    override fun areContentsTheSame(oldItem: RepeatItem, newItem: RepeatItem): Boolean {
+        // for data class RepeatItem this will check all the fields
+        return oldItem == newItem
     }
 }
 

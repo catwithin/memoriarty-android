@@ -44,7 +44,7 @@ class OverviewFragment : Fragment() {
 
         viewModel.repeats.observe(viewLifecycleOwner, Observer {
             it?.let {
-                adapter.data = it
+                adapter.submitList(it)
             }
         })
 
