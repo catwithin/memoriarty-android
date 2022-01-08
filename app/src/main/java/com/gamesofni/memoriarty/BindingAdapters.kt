@@ -24,15 +24,15 @@ import com.gamesofni.memoriarty.overview.MemoriartyApiStatus
 //    }
 //}
 
-@BindingAdapter("listData")
-fun bindRecyclerView(
-        recyclerView: RecyclerView,
-        data: List<RepeatItem>?) {
-
-    val adapter = recyclerView.adapter as RepeatsGridAdapter
-    adapter.submitList(data)
-
-}
+//@BindingAdapter("listData")
+//fun bindRecyclerView(
+//        recyclerView: RecyclerView,
+//        data: List<RepeatItem>?) {
+//
+//    val adapter = recyclerView.adapter as RepeatsGridAdapter
+//    adapter.submitList(data)
+//
+//}
 
 
 // setting up a custom view to show the status of fetch

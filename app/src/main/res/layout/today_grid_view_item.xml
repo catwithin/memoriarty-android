@@ -30,25 +30,53 @@
             />
     </data>
 
-    <TextView
-        android:id="@+id/description"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="170dp"
-        android:adjustViewBounds="true"
-        android:padding="2dp"
-        android:text="@{repeat.description}"
+        android:layout_height="wrap_content"
         android:onClick="@{() -> clickListener.onClick(repeat)}"
-        tools:text="Sample Repeat"
-    />
+        >
 
-<!--    <ImageView-->
-<!--        android:id="@+id/image"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="170dp"-->
-<!--        android:scaleType="fitXY"-->
-<!--        android:adjustViewBounds="true"-->
-<!--        android:padding="2dp"-->
-<!--        tools:src="@tools:sample/backgrounds/scenic"-->
-<!--        app:imageUrl="@{repeat.description}"-->
-<!--    />-->
+        <ImageView
+            android:id="@+id/image"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:scaleType="fitXY"
+            android:padding="6dp"
+            android:adjustViewBounds="true"
+            tools:src="@tools:sample/backgrounds/scenic"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:src="@drawable/favicon"
+        />
+
+        <TextView
+            android:id="@+id/description"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:layout_margin="8dp"
+            android:text="@{repeat.description}"
+
+            tools:text="Sample Repeat"
+            app:layout_constraintStart_toEndOf="@+id/image"
+            app:layout_constraintTop_toTopOf="@+id/image"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0" />
+
+        <TextView
+            android:id="@+id/nextRepeat"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:layout_margin="8dp"
+
+            android:text="@{@string/next_repeat(repeat.projectId)}"
+            android:onClick="@{() -> clickListener.onClick(repeat)}"
+            tools:text="To repeat on: 12.13.12"
+            app:layout_constraintStart_toEndOf="@+id/image"
+            app:layout_constraintTop_toBottomOf="@+id/description"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

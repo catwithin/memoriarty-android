@@ -3,29 +3,21 @@ package com.gamesofni.memoriarty.overview
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.gamesofni.memoriarty.databinding.TodayGridViewItemBinding
 import com.gamesofni.memoriarty.network.RepeatItem
 
 class RepeatsGridAdapter(val clickListener: RepeatListener) :
-    ListAdapter<RepeatItem, RepeatsGridAdapter.RepeatsViewHolder>(DiffCallback) {
+    RecyclerView.Adapter<RepeatsViewHolder>() {
 
-    /**
-     * The RepeatsViewHolder constructor takes the binding variable from the associated
-     * GridViewItem, which nicely gives it access to the full [RepeatItem] information.
-     */
-    class RepeatsViewHolder(
-        private var binding: TodayGridViewItemBinding
-    ) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(repeat: RepeatItem, clickListener: RepeatListener) {
-            binding.repeat = repeat
-            binding.clickListener = clickListener
-            // This is important, because it forces the data binding to execute immediately,
-            // which allows the RecyclerView to make the correct view size measurements
-            binding.executePendingBindings()
+    var data =  listOf<RepeatItem>()
+        set(value) {
+            field = value
+            notifyDataSetChanged()
         }
-    }
+
+    override fun getItemCount() = data.size
+
 
     /**
      * Allows the RecyclerView to determine which items have changed when the [List] of
@@ -48,21 +40,61 @@ class RepeatsGridAdapter(val clickListener: RepeatListener) :
         parent: ViewGroup,
         viewType: Int
     ): RepeatsViewHolder {
-
-        return RepeatsViewHolder(TodayGridViewItemBinding
-            .inflate(LayoutInflater.from(parent.context))
-        )
+        // keep inflation in the ViewHolder
+        return RepeatsViewHolder.from(parent)
     }
 
     /**
      * Replaces the contents of a view (invoked by the layout manager)
      */
     override fun onBindViewHolder(holder: RepeatsViewHolder, position: Int) {
-        val repeat = getItem(position)
+        val repeat = data[position]
         holder.bind(repeat, clickListener)
+
+        // All of this deals w ViewHolder and should be inside bind fun
+        // 1. playing with recycling views: if not resetted, some views will be red erroneously
+//        if (repeat.description.length <= 20) {
+//            holder.itemView.setBackgroundColor(Color.RED)
+//        } else {
+//            holder.itemView.setBackgroundColor(Color.WHITE)
+//        }
+        // 2. playing w formatting
+//        val res = holder.itemView.context.resources
+//        holder.sleepLength.text = convertDurationToFormatted(item.startTimeMilli, item.endTimeMilli, res)
+
+
     }
 }
+
+
+/**
+ * The RepeatsViewHolder constructor takes the binding variable from the associated
+ * GridViewItem, which nicely gives it access to the full [RepeatItem] information.
+ */
+class RepeatsViewHolder private constructor(private var binding: TodayGridViewItemBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+
+    fun bind(repeat: RepeatItem, clickListener: RepeatListener) {
+        binding.repeat = repeat
+        binding.clickListener = clickListener
+        // This is important, because it forces the data binding to execute immediately,
+        // which allows the RecyclerView to make the correct view size measurements
+        binding.executePendingBindings()
+    }
+
+    companion object {
+        fun from(parent: ViewGroup): RepeatsViewHolder {
+            return RepeatsViewHolder(
+                TodayGridViewItemBinding
+                    .inflate(LayoutInflater.from(parent.context))
+            )
+        }
+    }
+}
+
 
 class RepeatListener(val clickListener: (description: String) -> Unit) {
     fun onClick(repeat: RepeatItem) = clickListener(repeat.description)
 }
+
+
