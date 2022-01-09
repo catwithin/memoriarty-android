@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.NavigationUI
+import androidx.recyclerview.widget.GridLayoutManager
 import com.gamesofni.memoriarty.R
 import com.gamesofni.memoriarty.database.MemoriartyDatabase
 import com.gamesofni.memoriarty.databinding.TodayFragmentOverviewBinding
@@ -63,6 +64,10 @@ class OverviewFragment : Fragment() {
         setHasOptionsMenu(true)
         // Allows Data Binding to Observe LiveData with the lifecycle of this Fragment
         binding.setLifecycleOwner(this)
+
+
+        val manager = GridLayoutManager(activity, 3, GridLayoutManager.VERTICAL, true)
+        binding.photosGrid.layoutManager = manager
 
         // Giving the binding access to the OverviewViewModel
         binding.viewModel = viewModel

@@ -36,17 +36,22 @@
         android:onClick="@{() -> clickListener.onClick(repeat)}"
         >
 
-        <ImageView
+        <TextView
             android:id="@+id/image"
             android:layout_width="60dp"
             android:layout_height="60dp"
-            android:scaleType="fitXY"
+            android:gravity="center"
             android:padding="6dp"
+            tools:text="ra"
+
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textAllCaps="true"
+
             android:adjustViewBounds="true"
-            tools:src="@tools:sample/backgrounds/scenic"
+            app:setProjectTextView="@{repeat}"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            android:src="@drawable/favicon"
         />
 
         <TextView

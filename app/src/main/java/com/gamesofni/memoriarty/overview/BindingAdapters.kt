@@ -2,6 +2,7 @@ package com.gamesofni.memoriarty
 
 import android.view.View
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.core.net.toUri
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -36,8 +37,8 @@ import com.gamesofni.memoriarty.overview.MemoriartyApiStatus
 
 
 // setting up a custom view to show the status of fetch
-@BindingAdapter("marsApiStatus")
-fun bindStatus(statusImageView: ImageView,
+@BindingAdapter("memoriartyApiStatus")
+fun memoriartyApiStatus(statusImageView: ImageView,
                status: MemoriartyApiStatus?) {
     when (status) {
         MemoriartyApiStatus.LOADING -> {
@@ -52,5 +53,12 @@ fun bindStatus(statusImageView: ImageView,
             statusImageView.visibility = View.GONE
         }
     }
+}
 
+// extension functions
+@BindingAdapter("setProjectTextView")
+fun TextView.setProject(repeat: RepeatItem) {
+//    text = repeat.projectId[0].uppercase().plus(repeat.projectId[1].uppercase())
+    val len = repeat.projectId.length
+    text = repeat.projectId.subSequence(len-2,len)
 }

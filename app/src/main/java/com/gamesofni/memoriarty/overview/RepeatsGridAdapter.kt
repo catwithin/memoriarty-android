@@ -31,10 +31,13 @@ class RepeatsGridAdapter(val clickListener: RepeatListener) :
         holder.bind(repeat, clickListener)
 
         // All of this deals w ViewHolder and should be inside bind fun
+        // in fact, even in the BindingAdapters
         // 1. playing with recycling views: if not resetted, some views will be red erroneously
 //        if (repeat.description.length <= 20) {
+//            holder.binding.description.setTextColor(Color.RED)
 //            holder.itemView.setBackgroundColor(Color.RED)
 //        } else {
+//            holder.binding.description.setTextColor(Color.BLACK)
 //            holder.itemView.setBackgroundColor(Color.WHITE)
 //        }
         // 2. playing w formatting
