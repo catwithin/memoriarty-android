@@ -45,7 +45,7 @@ class OverviewFragment : Fragment() {
 
         viewModel.repeats.observe(viewLifecycleOwner, Observer {
             it?.let {
-                adapter.submitList(it)
+                adapter.addHeaderAndSubmitList(it)
             }
         })
 
@@ -66,7 +66,13 @@ class OverviewFragment : Fragment() {
         binding.setLifecycleOwner(this)
 
 
-        val manager = GridLayoutManager(activity, 3, GridLayoutManager.VERTICAL, true)
+        val manager = GridLayoutManager(activity, 2, GridLayoutManager.VERTICAL, false)
+        manager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+            override fun getSpanSize(position: Int) =  when (position) {
+                0 -> 2
+                else -> 1
+            }
+        }
         binding.photosGrid.layoutManager = manager
 
         // Giving the binding access to the OverviewViewModel
