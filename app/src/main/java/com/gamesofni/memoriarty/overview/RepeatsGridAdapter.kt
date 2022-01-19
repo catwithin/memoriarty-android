@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.gamesofni.memoriarty.R
 import com.gamesofni.memoriarty.databinding.TodayGridViewItemBinding
-import com.gamesofni.memoriarty.network.RepeatItem
+import com.gamesofni.memoriarty.repeat.Repeat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -70,7 +70,7 @@ class RepeatsGridAdapter(val clickListener: RepeatListener) :
         }
     }
 
-    fun addHeaderAndSubmitList(list: List<RepeatItem>?) {
+    fun addHeaderAndSubmitList(list: List<Repeat>?) {
         adapterScope.launch {
             val items = when (list) {
                 null -> listOf(OverviewListItem.Header)
@@ -87,12 +87,12 @@ class RepeatsGridAdapter(val clickListener: RepeatListener) :
 
 /**
  * The RepeatsViewHolder constructor takes the binding variable from the associated
- * GridViewItem, which nicely gives it access to the full [RepeatItem] information.
+ * GridViewItem, which nicely gives it access to the full [Repeat] information.
  */
 class RepeatsViewHolder private constructor(private var binding: TodayGridViewItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(repeat: RepeatItem, clickListener: RepeatListener) {
+    fun bind(repeat: Repeat, clickListener: RepeatListener) {
         binding.repeat = repeat
         binding.clickListener = clickListener
         // This is important, because it forces the data binding to execute immediately,
@@ -137,15 +137,15 @@ class OverviewListItemDiffCallback : DiffUtil.ItemCallback<OverviewListItem>() {
 
 
 class RepeatListener(val clickListener: (description: String) -> Unit) {
-    fun onClick(repeat: RepeatItem) = clickListener(repeat.description)
+    fun onClick(repeat: Repeat) = clickListener(repeat.description)
 }
 
 
 sealed class OverviewListItem {
     abstract val id: String
 
-    data class RepeatListItem(val repeat: RepeatItem): OverviewListItem()      {
-        override val id = repeat._id
+    data class RepeatListItem(val repeat: Repeat): OverviewListItem()      {
+        override val id = repeat.id
     }
 
     object Header: OverviewListItem() {

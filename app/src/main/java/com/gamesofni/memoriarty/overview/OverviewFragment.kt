@@ -2,6 +2,7 @@ package com.gamesofni.memoriarty.overview
 
 import android.os.Bundle
 import android.view.*
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -77,6 +78,14 @@ class OverviewFragment : Fragment() {
 
         // Giving the binding access to the OverviewViewModel
         binding.viewModel = viewModel
+
+        // Observer for the network error.
+        viewModel.networkError.observe(viewLifecycleOwner, Observer<Boolean> { isError ->
+            if (isError) {
+                Toast.makeText(activity, "Network Error", Toast.LENGTH_LONG).show()
+            }
+
+        })
 
         return binding.root
     }

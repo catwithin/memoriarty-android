@@ -3,13 +3,9 @@ package com.gamesofni.memoriarty
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.core.net.toUri
 import androidx.databinding.BindingAdapter
-import androidx.recyclerview.widget.RecyclerView
-import coil.load
-import com.gamesofni.memoriarty.overview.RepeatsGridAdapter
-import com.gamesofni.memoriarty.network.RepeatItem
 import com.gamesofni.memoriarty.overview.MemoriartyApiStatus
+import com.gamesofni.memoriarty.repeat.Repeat
 
 
 //@BindingAdapter("imageUrl")
@@ -57,8 +53,8 @@ fun memoriartyApiStatus(statusImageView: ImageView,
 
 // extension functions
 @BindingAdapter("setProjectTextView")
-fun TextView.setProject(repeat: RepeatItem) {
+fun TextView.setProject(repeat: Repeat) {
 //    text = repeat.projectId[0].uppercase().plus(repeat.projectId[1].uppercase())
-    val len = repeat.projectId.length
-    text = repeat.projectId.subSequence(len-2,len)
+    val len = repeat.project.length
+    text = repeat.project.subSequence(len-2,len)
 }

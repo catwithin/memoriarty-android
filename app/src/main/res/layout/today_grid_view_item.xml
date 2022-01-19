@@ -23,7 +23,7 @@
     <data>
         <variable
             name="repeat"
-            type="com.gamesofni.memoriarty.network.RepeatItem" />
+            type="com.gamesofni.memoriarty.repeat.Repeat" />
         <variable
             name="clickListener"
             type="com.gamesofni.memoriarty.overview.RepeatListener"
@@ -75,7 +75,7 @@
             android:adjustViewBounds="true"
             android:layout_margin="8dp"
 
-            android:text="@{@string/next_repeat(repeat.projectId)}"
+            android:text="@{@string/next_repeat(repeat.project)}"
             android:onClick="@{() -> clickListener.onClick(repeat)}"
             tools:text="To repeat on: 12.13.12"
             app:layout_constraintStart_toEndOf="@+id/image"

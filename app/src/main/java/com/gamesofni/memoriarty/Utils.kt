@@ -22,7 +22,9 @@ fun formatToHtml(repeat: RepeatEntity?, resources: Resources): Spanned {
             append(resources.getString(R.string.fancy_formatting))
             append("${repeat.description}<br>")
             append("id: ")
-            append("${repeat.id}<br><br>")
+            append("${repeat.repeatId}<br><br>")
+            append("Next repeat:<br><br>")
+            append("${repeat.nextRepeat}<br><br>")
         }
         str = sb.toString()
     }
@@ -70,4 +72,36 @@ fun convertDurationToFormatted(startTimeMilli: Long, endTimeMilli: Long, res: Re
             res.getString(R.string.hours_length, hours, weekdayString)
         }
     }
+}
+
+private val PUNCTUATION = listOf(", ", "; ", ": ", " ")
+
+/**
+ * Truncate long text with a preference for word boundaries and without trailing punctuation.
+ */
+fun String.smartTruncate(length: Int): String {
+    val words = split(" ")
+    var added = 0
+    var hasMore = false
+    val builder = StringBuilder()
+    for (word in words) {
+        if (builder.length > length) {
+            hasMore = true
+            break
+        }
+        builder.append(word)
+        builder.append(" ")
+        added += 1
+    }
+
+    PUNCTUATION.map {
+        if (builder.endsWith(it)) {
+            builder.replace(builder.length - it.length, builder.length, "")
+        }
+    }
+
+    if (hasMore) {
+        builder.append("...")
+    }
+    return builder.toString()
 }

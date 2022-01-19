@@ -6,7 +6,7 @@ import java.util.*
 
 const val DATABASE_NAME = "memoriarty_database"
 
-@Database(entities = [RepeatEntity::class], version = 1, exportSchema = true)
+@Database(entities = [RepeatEntity::class], version = 4, exportSchema = true)
 @TypeConverters(Converters::class)
 abstract class  MemoriartyDatabase : RoomDatabase() {
 
@@ -16,12 +16,14 @@ abstract class  MemoriartyDatabase : RoomDatabase() {
 
         @Volatile
         private var INSTANCE: MemoriartyDatabase? = null
+//        private lateinit var INSTANCE: MemoriartyDatabase
 
 
         fun getInstance(context: Context): MemoriartyDatabase {
             synchronized(this) {
                 var instance = INSTANCE
                 if (instance == null) {
+//                if (!::INSTANCE.isInitialized) {
                     instance = Room.databaseBuilder(
                         context.applicationContext,
                         MemoriartyDatabase::class.java,

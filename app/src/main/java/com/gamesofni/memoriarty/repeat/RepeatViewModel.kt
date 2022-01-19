@@ -17,7 +17,7 @@ class RepeatViewModel (
 ) : AndroidViewModel(application) {
 
     var repeat = MutableLiveData<RepeatEntity?>()
-    var idString = Transformations.map(repeat) { r -> r?.id.toString() }
+    var idString = Transformations.map(repeat) { r -> r?.repeatId }
 
     val repeatTransformed = Transformations.map(repeat) { repeat ->
         formatToHtml(repeat, application.resources)
@@ -82,7 +82,7 @@ class RepeatViewModel (
         // several nested ones this statement returns from.
         // In this case, we are specifying to return from launch(),
         // not the lambda.
-            val oldRepeat = repeatsDao.get(repeat.value!!.id) ?: return@launch
+            val oldRepeat = repeatsDao.get(repeat.value!!.repeatId) ?: return@launch
             oldRepeat.description = repeat.value!!.description
             repeatsDao.update(oldRepeat)
 
