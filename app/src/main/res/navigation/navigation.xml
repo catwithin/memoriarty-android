@@ -27,7 +27,7 @@
     </fragment>
     <fragment
         android:id="@+id/aboutFragment"
-        android:name="com.gamesofni.memoriarty.support.AboutFragment"
+        android:name="com.gamesofni.memoriarty.about.AboutFragment"
         android:label="@string/aboutFragmentName"
         tools:layout="@layout/fragment_about" />
     <fragment

@@ -1,4 +1,4 @@
-package com.gamesofni.memoriarty.support
+package com.gamesofni.memoriarty.about
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
