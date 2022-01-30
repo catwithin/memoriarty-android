@@ -31,6 +31,11 @@ class RepeatViewModel (
     val navigateToDetailRepeat: LiveData<RepeatEntity?>
         get() = _navigateToDetailRepeat
 
+    private val _navigateToOverview = MutableLiveData<RepeatEntity?>()
+    val navigateToOverview: LiveData<RepeatEntity?>
+        get() = _navigateToOverview
+
+
     init {
         initializeRepeat()
     }
@@ -89,4 +94,20 @@ class RepeatViewModel (
             _navigateToDetailRepeat.value = repeat.value
         }
     }
+
+    fun onCheckedClicked() {
+        viewModelScope.launch {
+            // TODO: implement db repeat done update
+//            val oldRepeat = repeatsDao.get(repeat.value!!.repeatId) ?: return@launch
+//            oldRepeat.description = repeat.value!!.description
+//            repeatsDao.update(oldRepeat)
+
+            _navigateToOverview.value = repeat.value
+        }
+    }
+    fun doneNavigatingToOverview() {
+        _navigateToOverview.value = null
+    }
+
 }
+

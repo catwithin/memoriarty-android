@@ -42,6 +42,16 @@ class RepeatDetailFragment : Fragment() {
             }
         })
 
+        viewModel.navigateToOverview.observe(this.viewLifecycleOwner, { r ->
+            r?.let {
+                this.findNavController().navigate(RepeatDetailFragmentDirections
+                    .actionRepeatDetailFragmentToOverviewFragment(r.description))
+                Toast.makeText(context, "Description: ${r.description}", Toast.LENGTH_LONG).show()
+
+                viewModel.doneNavigatingToOverview()
+            }
+        })
+
         return binding.root
     }
 

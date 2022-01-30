@@ -29,7 +29,9 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".MainActivity">
+        tools:context=".MainActivity"
+        android:background="@drawable/background"
+        >
 <!--  notice clipToPadding, spanCount      -->
 <!--  also nice preview tools      -->
 
@@ -38,9 +40,8 @@
             android:id="@+id/photos_grid"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:padding="6dp"
-            android:clipToPadding="false"
-
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
             app:layoutManager=
                 "androidx.recyclerview.widget.GridLayoutManager"
             app:layout_constraintBottom_toBottomOf="parent"

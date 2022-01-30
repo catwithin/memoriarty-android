@@ -7,4 +7,9 @@
     <style name="TextAppearance.Subtitle" parent="TextAppearance.Title" >
         <item name="android:textSize">18sp</item>
     </style>
+
+    <style name="ShapeAppearanceOverlay.App.Card.Media" parent="">
+        <item name="cornerSizeBottomLeft">0dp</item>
+        <item name="cornerSizeBottomRight">0dp</item>
+    </style>
 </resources>

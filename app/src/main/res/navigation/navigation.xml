@@ -16,11 +16,19 @@
         <action
             android:id="@+id/action_repeatDetailFragment_to_repeatEditFragment"
             app:destination="@id/repeatEditFragment" />
+        <action
+            android:id="@+id/action_repeatDetailFragment_to_overviewFragment"
+            app:destination="@id/overviewFragment"
+            app:popUpTo="@id/repeatDetailFragment"
+            app:popUpToInclusive="true" />
     </fragment>
     <fragment
         android:id="@+id/overviewFragment"
         android:name="com.gamesofni.memoriarty.overview.OverviewFragment"
         android:label="@string/overviewName" >
+        <argument
+            android:name="description"
+            app:argType="string" />
         <action
             android:id="@+id/action_overviewFragment_to_repeatDetailFragment"
             app:destination="@id/repeatDetailFragment" />

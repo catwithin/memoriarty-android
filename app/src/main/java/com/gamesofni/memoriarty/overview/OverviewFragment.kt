@@ -67,13 +67,13 @@ class OverviewFragment : Fragment() {
         binding.setLifecycleOwner(this)
 
 
-        val manager = GridLayoutManager(activity, 2, GridLayoutManager.VERTICAL, false)
-        manager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
-            override fun getSpanSize(position: Int) =  when (position) {
-                0 -> 2
-                else -> 1
-            }
-        }
+        val manager = GridLayoutManager(activity, 1, GridLayoutManager.VERTICAL, false)
+//        manager.spanSizeLookup = object : GridLayoutManager.SpanSizeLookup() {
+//            override fun getSpanSize(position: Int) =  when (position) {
+//                0 -> 2
+//                else -> 1
+//            }
+//        }
         binding.photosGrid.layoutManager = manager
 
         // Giving the binding access to the OverviewViewModel

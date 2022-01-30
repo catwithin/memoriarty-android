@@ -2,7 +2,7 @@
     <string name="app_name">Memoriarty</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">List of projects</string>
-    <string name="overviewName">Today Repeats</string>
+    <string name="overviewName">@string/app_name</string>
     <string name="detailFragmentName">Repeat\'s Details</string>
     <string name="about_fragment_text">Here will be words about Memoriarty</string>
     <string name="about">About</string>

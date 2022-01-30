@@ -18,9 +18,10 @@
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    >
 
-    <data>
+  <data>
         <variable
             name="repeat"
             type="com.gamesofni.memoriarty.repeat.Repeat" />
@@ -28,12 +29,35 @@
             name="clickListener"
             type="com.gamesofni.memoriarty.overview.RepeatListener"
             />
-    </data>
+  </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+  <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+
+        android:layout_marginBottom="8dp"
+        android:paddingBottom="12dp"
+        >
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:clickable="true"
+        android:focusable="true"
+        android:checkable="true"
+
+        app:strokeWidth="1dp"
+        app:strokeColor="@color/colorAccent"
+        app:cardElevation="3dp"
+        app:cardCornerRadius="6dp"
+        >
+
+      <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:onClick="@{() -> clickListener.onClick(repeat)}"
+        android:paddingBottom="16dp"
         >
 
         <TextView
@@ -77,7 +101,7 @@
             android:adjustViewBounds="true"
             android:layout_margin="8dp"
 
-            android:textAppearance="@style/TextAppearance.Subtitle"
+            style="?attr/subtitle"
 
             android:text="@{@string/next_repeat(repeat.project)}"
             android:onClick="@{() -> clickListener.onClick(repeat)}"
@@ -87,5 +111,10 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+      </androidx.constraintlayout.widget.ConstraintLayout>
+        
+    </com.google.android.material.card.MaterialCardView>
+
+  </FrameLayout>
+
 </layout>
