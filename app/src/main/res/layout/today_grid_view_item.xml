@@ -84,7 +84,7 @@
             android:layout_height="wrap_content"
             android:adjustViewBounds="true"
             android:layout_margin="8dp"
-            android:text="@{repeat.description}"
+            android:text="@{repeat.shortDescription}"
 
             android:textAppearance="@style/TextAppearance.Title"
 
@@ -103,7 +103,7 @@
 
             style="?attr/subtitle"
 
-            android:text="@{@string/next_repeat(repeat.project)}"
+            android:text="@{@string/next_repeat(repeat.dateToText)}"
             android:onClick="@{() -> clickListener.onClick(repeat)}"
             tools:text="To repeat on: 12.13.12"
             app:layout_constraintStart_toEndOf="@+id/image"

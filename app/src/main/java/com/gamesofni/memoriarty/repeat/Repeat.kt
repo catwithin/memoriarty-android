@@ -14,8 +14,11 @@ data class Repeat(
     ) {
 
     val shortDescription: String
-        get() = description.smartTruncate(200)
+        get() = description.smartTruncate(50)
 
     val projectInitials: String
         get() = project.substring(0,2)
+
+    val dateToText: String
+        get() = toRepeatOn.toString()
 }

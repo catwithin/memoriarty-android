@@ -6,9 +6,7 @@ import com.gamesofni.memoriarty.Repository
 import com.gamesofni.memoriarty.database.MemoriartyDatabase
 import com.gamesofni.memoriarty.database.RepeatsDao
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
 import timber.log.Timber
-import java.io.IOException
 import java.lang.Exception
 
 
@@ -27,7 +25,7 @@ class OverviewViewModel (
     // The external immutable LiveData for the request status
     val status: LiveData<MemoriartyApiStatus> = _status
 
-    val repeats = repository.repeats
+    val repeats = repository.todayRepeats
 
 
     private val _networkError = MutableLiveData<Boolean>()

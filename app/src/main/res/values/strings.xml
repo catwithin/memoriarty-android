@@ -16,7 +16,7 @@
     <string name="fancy_formatting"><![CDATA[<b>Myaf\': </b>]]></string>
     <string name="description_lable">description: </string>
     <string name="id_lable">id: </string>
-    <string name="next_repeat">To repeat on: %1$s></string>
+    <string name="next_repeat">To repeat on: %1$s</string>
 
     <string name="minutes_length">%d minutes on %s</string>
     <string name="hours_length">%d hours on %s</string>
