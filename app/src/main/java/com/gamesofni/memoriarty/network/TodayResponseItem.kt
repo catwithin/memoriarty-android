@@ -1,11 +1,8 @@
 package com.gamesofni.memoriarty.network
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import com.gamesofni.memoriarty.database.RepeatEntity
 import com.gamesofni.memoriarty.repeat.Repeat
 import com.squareup.moshi.Json
-import timber.log.Timber
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -25,7 +22,7 @@ data class RepeatJson (
     val _id: String,
     @Json(name = "date") val dateCreated: String,
     val description: String,
-    val next_repeat: String,
+    val next_repeat: String?,
     val project_id: String,
 
     val repeats: List<String>,
@@ -38,10 +35,20 @@ fun TodayResponseItem.asDatabaseRepeats(): List<RepeatEntity> {
             repeatId = it._id,
             repeatCreated = stringToDate(it.dateCreated),
             description = it.description,
-            nextRepeat = stringToDate(it.next_repeat),
+            nextRepeat = computeNextRepeat(it),
             projectId = it.project_id,
         )
     }
+}
+
+// deals with fully repeated items (next_repeat = null)
+fun computeNextRepeat(repeat: RepeatJson): Date {
+    // TODO: optimize - maybe additional var on server?
+    if (repeat.next_repeat != null) return stringToDate(repeat.next_repeat)
+    val c = Calendar.getInstance()
+    c.setTime(stringToDate(repeat.dateCreated))
+    c.set(Calendar.YEAR, Calendar.getInstance().get(Calendar.YEAR))
+    return c.time
 }
 
 fun TodayResponseItem.asDomainModel(): List<Repeat> {
@@ -50,7 +57,7 @@ fun TodayResponseItem.asDomainModel(): List<Repeat> {
             id = it._id,
             dateCreated = stringToDate(it.dateCreated),
             description = it.description,
-            toRepeatOn = stringToDate(it.next_repeat),
+            toRepeatOn = computeNextRepeat(it),
             project = it.project_id,
         )
     }
