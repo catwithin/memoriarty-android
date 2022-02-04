@@ -44,11 +44,18 @@ class OverviewFragment : Fragment() {
         })
         binding.photosGrid.adapter = adapter
 
-        viewModel.repeats.observe(viewLifecycleOwner, Observer {
+        viewModel.todayRepeats.observe(viewLifecycleOwner, Observer {
             it?.let {
-                adapter.addHeaderAndSubmitList(it)
+                adapter.addHeaderAndSubmitList(it, viewModel.overdueRepeats.value)
             }
         })
+
+        viewModel.overdueRepeats.observe(viewLifecycleOwner, Observer {
+            it?.let {
+                adapter.addHeaderAndSubmitList(viewModel.todayRepeats.value, it)
+            }
+        })
+
 
         viewModel.navigateToRepeatDetail.observe(viewLifecycleOwner, { description ->
             description?.let {

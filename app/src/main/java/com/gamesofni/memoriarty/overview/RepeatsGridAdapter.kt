@@ -3,6 +3,7 @@ package com.gamesofni.memoriarty.overview
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -14,8 +15,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-private val ITEM_VIEW_TYPE_HEADER = 0
-private val ITEM_VIEW_TYPE_ITEM = 1
+private const val ITEM_VIEW_TYPE_HEADER_TODAY = 0
+private const val ITEM_VIEW_TYPE_HEADER_OVERDUE = 1
+private const val ITEM_VIEW_TYPE_ITEM = 2
 
 class RepeatsGridAdapter(val clickListener: RepeatListener) :
     ListAdapter<OverviewListItem, RecyclerView.ViewHolder>(OverviewListItemDiffCallback()) {
@@ -31,7 +33,8 @@ class RepeatsGridAdapter(val clickListener: RepeatListener) :
     ): RecyclerView.ViewHolder {
         // keep inflation in the ViewHolder
         return when (viewType) {
-            ITEM_VIEW_TYPE_HEADER -> HeaderViewHolder.from(parent)
+            ITEM_VIEW_TYPE_HEADER_TODAY -> HeaderViewHolder.from(parent, ITEM_VIEW_TYPE_HEADER_TODAY)
+            ITEM_VIEW_TYPE_HEADER_OVERDUE -> HeaderViewHolder.from(parent, ITEM_VIEW_TYPE_HEADER_OVERDUE)
             ITEM_VIEW_TYPE_ITEM -> RepeatsViewHolder.from(parent)
             else -> throw ClassCastException("Unknown viewType ${viewType}")
         }
@@ -65,22 +68,28 @@ class RepeatsGridAdapter(val clickListener: RepeatListener) :
 
     override fun getItemViewType(position: Int): Int {
         return when (getItem(position)) {
-            is OverviewListItem.Header -> ITEM_VIEW_TYPE_HEADER
+            is OverviewListItem.Header -> getItem(position).id.toInt()
             is OverviewListItem.RepeatListItem -> ITEM_VIEW_TYPE_ITEM
         }
     }
 
-    fun addHeaderAndSubmitList(list: List<Repeat>?) {
+    fun addHeaderAndSubmitList(todayRepeats: List<Repeat>?, overdueRepeats: List<Repeat>?) {
         adapterScope.launch {
-            val items = when (list) {
-                null -> listOf(OverviewListItem.Header)
-                else -> listOf(OverviewListItem.Header) + list.map {OverviewListItem.RepeatListItem(it)}
-            }
+            val items = listOf(OverviewListItem.Header(ITEM_VIEW_TYPE_HEADER_TODAY.toString())) +
+                when (todayRepeats) {
+                    null -> listOf()
+                    else -> todayRepeats.map {OverviewListItem
+                     .RepeatListItem(it)}
+                } + listOf(OverviewListItem.Header(ITEM_VIEW_TYPE_HEADER_OVERDUE.toString())) +
+                when (overdueRepeats) {
+                    null -> listOf()
+                    else -> overdueRepeats.map {OverviewListItem
+                        .RepeatListItem(it)}
+                }
             withContext(Dispatchers.Main) {
                 submitList(items)
             }
         }
-
     }
 }
 
@@ -112,9 +121,17 @@ class RepeatsViewHolder private constructor(private var binding: TodayGridViewIt
 
 class HeaderViewHolder(view: View): RecyclerView.ViewHolder(view) {
     companion object {
-        fun from(parent: ViewGroup): HeaderViewHolder {
+        fun from(parent: ViewGroup, headerType: Int): HeaderViewHolder {
             val layoutInflater = LayoutInflater.from(parent.context)
             val view = layoutInflater.inflate(R.layout.today_grid_view_header, parent, false)
+            val textView: TextView = view.findViewById(R.id.header_title) as TextView
+            textView.text = when (headerType) {
+                ITEM_VIEW_TYPE_HEADER_OVERDUE -> parent.resources.getString(R.string
+                    .header_overdue_repeats)
+                ITEM_VIEW_TYPE_HEADER_TODAY -> parent.resources.getString(R.string
+                    .header_today_repeats)
+                else -> ""
+            }
             return HeaderViewHolder(view)
         }
     }
@@ -148,7 +165,5 @@ sealed class OverviewListItem {
         override val id = repeat.id
     }
 
-    object Header: OverviewListItem() {
-        override val id = "header"
-    }
+    data class Header(override val id: String): OverviewListItem()
 }

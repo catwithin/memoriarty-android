@@ -36,4 +36,9 @@ interface RepeatsDao {
     @Query("SELECT * FROM repeats WHERE description = :desc LIMIT 1")
     suspend fun getRepeatByDescription(desc: String): RepeatEntity?
 
+    @Query("SELECT * FROM repeats " +
+            "WHERE next_repeat < :startOfTodayUnix " +
+            "ORDER BY next_repeat ASC")
+    fun getOverdueRepeats(startOfTodayUnix: Long): LiveData<List<RepeatEntity>>
+
 }

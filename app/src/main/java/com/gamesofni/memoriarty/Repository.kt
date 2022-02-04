@@ -19,6 +19,11 @@ class Repository(private val db: MemoriartyDatabase) {
         db.repeatsDao.getTodayRepeats(atStartOfDay(), atEndOfDay()))
             { it.asDomainModel()}
 
+    val overdueRepeats: LiveData<List<Repeat>> = Transformations.map(
+        db.repeatsDao.getOverdueRepeats(atStartOfDay()))
+    { it.asDomainModel()}
+
+
     suspend fun refreshTodayRepeats() {
         Timber.d("refresh repeats is called");
         withContext(Dispatchers.IO) {

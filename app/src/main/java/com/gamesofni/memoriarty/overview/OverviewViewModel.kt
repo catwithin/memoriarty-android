@@ -25,7 +25,8 @@ class OverviewViewModel (
     // The external immutable LiveData for the request status
     val status: LiveData<MemoriartyApiStatus> = _status
 
-    val repeats = repository.todayRepeats
+    val todayRepeats = repository.todayRepeats
+    val overdueRepeats = repository.overdueRepeats
 
 
     private val _networkError = MutableLiveData<Boolean>()
@@ -68,9 +69,12 @@ class OverviewViewModel (
 
             } catch (e : Exception) {
                 _networkError.value = true
-                _status.value = if (repeats.value.isNullOrEmpty())
-                    MemoriartyApiStatus.ERROR else
-                    MemoriartyApiStatus.DONE
+                // TODO: think of how to handle errors: when use data from db, how show the
+                //  network error status etc.
+//                _status.value = if (todayRepeats.value.isNullOrEmpty())
+//                    MemoriartyApiStatus.ERROR else
+                Timber.e(e)
+                _status.value = MemoriartyApiStatus.DONE
             }
         }
     }
