@@ -5,7 +5,12 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.gamesofni.memoriarty.R
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.tooling.preview.Preview
+
 
 class AboutFragment : Fragment() {
 
@@ -13,8 +18,24 @@ class AboutFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_about, container, false)
+        return ComposeView(requireContext()).apply {
+            setContent {
+                Surface() {
+                    Greeting("Memoriarty")
+                }
+            }
+        }
     }
 
+}
+
+@Composable
+fun Greeting(name: String) {
+    Text(text = "Things about $name!")
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DefaultPreview() {
+        Greeting("Memoriarty")
 }
