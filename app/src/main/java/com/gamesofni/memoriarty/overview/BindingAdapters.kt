@@ -35,7 +35,7 @@ import com.gamesofni.memoriarty.repeat.Repeat
 // setting up a custom view to show the status of fetch
 @BindingAdapter("memoriartyApiStatus")
 fun memoriartyApiStatus(statusImageView: ImageView,
-               status: MemoriartyApiStatus?) {
+               status: MemoriartyApiStatus) {
     when (status) {
         MemoriartyApiStatus.LOADING -> {
             statusImageView.visibility = View.VISIBLE

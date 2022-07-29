@@ -10,12 +10,12 @@ plugins {
 }
 
 android {
-    compileSdk 31
+    compileSdk 32
 
     defaultConfig {
         applicationId "com.gamesofni.memoriarty"
         minSdk 24
-        targetSdk 31
+        targetSdk 32
         versionCode 1
         versionName "1.0"
 
@@ -59,11 +59,11 @@ android {
 
     composeOptions {
         // material 3
-        kotlinCompilerExtensionVersion = "1.2.0-alpha02"
+        kotlinCompilerExtensionVersion = "1.2.0"
     }
 
-    compileSdkVersion 31
-    buildToolsVersion '31.0.0'
+    compileSdkVersion 32
+    buildToolsVersion '32.0.0'
 
 
     packagingOptions {
@@ -106,11 +106,11 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.4.1'
 
     // Room and other Lifecycle
-    implementation "androidx.room:room-runtime:2.4.1"
-    kapt "androidx.room:room-compiler:2.4.1"
+    implementation "androidx.room:room-runtime:2.4.3"
+    kapt "androidx.room:room-compiler:2.4.3"
     implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
     // Kotlin Extensions and Coroutines support for Room
-    implementation "androidx.room:room-ktx:2.4.1"
+    implementation "androidx.room:room-ktx:2.4.3"
 
     // WorkManager dependency
     implementation "androidx.work:work-runtime-ktx:2.7.1"
@@ -130,4 +130,20 @@ dependencies {
     implementation 'com.robertlevonyan.view:MaterialExpansionPanel:2.1.5'
 
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2"
+
+    // jetpack compose
+    implementation 'androidx.compose.ui:ui:1.2.0'
+    // Integration with activities
+    implementation 'androidx.activity:activity-compose:1.5.1'
+    // Animations
+    implementation 'androidx.compose.animation:animation:1.2.0'
+    // Tooling support (Previews, etc.)
+    implementation 'androidx.compose.ui:ui-tooling:1.2.0'
+    // Integration with ViewModels
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1'
+    // UI Tests
+    androidTestImplementation 'androidx.compose.ui:ui-test-junit4:1.2.0'
+    // When using a MDC theme
+    implementation "com.google.android.material:compose-theme-adapter:1.1.1"
+
 }
