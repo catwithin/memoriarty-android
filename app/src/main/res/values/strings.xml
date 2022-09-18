@@ -23,4 +23,5 @@
     <string name="seconds_length">%d seconds on %s</string>
     <string name="header_today_repeats">"To Repeat Today: "</string>
     <string name="header_overdue_repeats">Overdue Repeats:</string>
+    <string name="About">Here be text about Memoriarty</string>
 </resources>
