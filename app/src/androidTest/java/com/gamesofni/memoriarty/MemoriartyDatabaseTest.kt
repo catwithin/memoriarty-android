@@ -47,7 +47,7 @@ class MemoriartyDatabaseTest {
     @Test
     @Throws(Exception::class)
     fun insertAndGetRepeat() {
-        val repeat = RepeatEntity(0, "", "test", Date(), "", Date())
+        val repeat = RepeatEntity("0", Date(), "test", Date(), "")
 //        repeatsDao.insert(repeat)
 //        val repeatFromDb = repeatsDao.getRepeat()
 //        assertEquals(repeatFromDb?.description, "test")

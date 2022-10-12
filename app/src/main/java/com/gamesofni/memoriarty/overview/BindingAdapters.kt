@@ -48,6 +48,11 @@ fun memoriartyApiStatus(statusImageView: ImageView,
         MemoriartyApiStatus.DONE -> {
             statusImageView.visibility = View.GONE
         }
+        else -> {
+            statusImageView.visibility = View.VISIBLE
+            // TODO: show different error
+            statusImageView.setImageResource(R.drawable.ic_connection_error)
+        }
     }
 }
 

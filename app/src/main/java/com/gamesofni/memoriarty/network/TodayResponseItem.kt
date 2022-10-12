@@ -47,7 +47,11 @@ fun computeNextRepeat(repeat: RepeatJson): Date {
     if (repeat.next_repeat != null) return stringToDate(repeat.next_repeat)
     val c = Calendar.getInstance()
     c.setTime(stringToDate(repeat.dateCreated))
-    c.set(Calendar.YEAR, Calendar.getInstance().get(Calendar.YEAR))
+    val today = Calendar.getInstance()
+    while (c.before(today)) {
+        c.add(Calendar.YEAR, 1)
+    }
+
     return c.time
 }
 
