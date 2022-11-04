@@ -13,7 +13,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Memoriarty">
         <activity
-            android:name="com.gamesofni.memoriarty.MainActivity"
+            android:name="com.gamesofni.memoriarty.overview.MainComposeAktivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
