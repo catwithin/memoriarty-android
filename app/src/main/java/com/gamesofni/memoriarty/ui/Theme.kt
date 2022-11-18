@@ -4,9 +4,9 @@ import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.*
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.graphics.toArgb
@@ -18,10 +18,11 @@ import androidx.core.view.ViewCompat
 private val DarkColorScheme = darkColorScheme(
     surface = Black,
     onSurface = White,
-    primary = DeepPurple,
+    primary = Orange,
     onPrimary = White,
-    secondary = DeepPurpleLight,
-    onSecondary = White
+    secondary = OrangeDark,
+    onSecondary = White,
+    error = Red800
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -29,12 +30,12 @@ private val LightColorScheme = lightColorScheme(
     onSurface = Black,
     primary = Orange,
     onPrimary = White,
-    secondary = OrangeLight,
-    onSecondary = White
-
+    secondary = Green800,
+    onSecondary = White,
+    error = Red800
 )
 
-@Suppress("DEPRECATION")
+
 @Composable
 fun MemoriartyTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
@@ -60,7 +61,9 @@ fun MemoriartyTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography,
-        content = content
+//        typography = Typography,
+        typography = JetnewsTypography,
+        shapes = JetnewsShapes,
+        content = content,
     )
 }

@@ -10,13 +10,12 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.*
@@ -25,7 +24,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.graphics.*
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import com.gamesofni.memoriarty.R
 import com.gamesofni.memoriarty.ui.MemoriartyTheme
 import java.util.*
 
@@ -34,7 +36,7 @@ class MainComposeAktivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MemoriartyTheme {
+            MemoriartyTheme(dynamicColor = true) {
                 AppContainer(modifier = Modifier.fillMaxSize())
             }
         }
@@ -80,17 +82,36 @@ fun OnboardingScreen(
 @Preview(showBackground = true, widthDp = 320, heightDp = 320)
 @Composable
 fun OnboardingPreview() {
-    MemoriartyTheme {
+    MemoriartyTheme(dynamicColor = false){
         OnboardingScreen(onContinueClicked = {})
     }
 }
 
+@Preview(showBackground = true, widthDp = 320, heightDp = 320)
+@Composable
+// TODO: can I change shouldShowOnboarding var for testing?
+fun AppPreview() {
+    MemoriartyTheme(dynamicColor = false){
+        AppContainer()
+    }
+}
 
 @Composable
 private fun Greetings(
     modifier: Modifier = Modifier,
-    names: List<String> = List(1000) { "$it" }
+    names: List<String> = List(100) { "$it" }
 ) {
+    Image(
+        painter = painterResource(R.drawable.celebration),
+        contentDescription = null,
+        contentScale = ContentScale.FillBounds,
+        modifier = modifier
+            .fillMaxHeight()
+            .fillMaxWidth()
+
+    )
+
+
     LazyColumn(modifier = modifier.padding(vertical = 4.dp)) {
         items(items = names) {
             name -> Greeting(name = name)
@@ -113,44 +134,54 @@ private fun Greeting(name: String) {
 //            stiffness = Spring.StiffnessLow
 //        )
 //    )
+//    MemoriartyTheme() {
+        Card(
+//        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondary),
+//        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
 
-    Card(
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondary),
-        modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
-    ) {
-        Row(modifier = Modifier
-            .padding(24.dp)
-            //                    .padding(bottom = extraPadding.coerceAtLeast(0.dp))
-            .animateContentSize(
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioMediumBouncy,
-                    stiffness = Spring.StiffnessLow
-                )
-            )
+            modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
         ) {
-            Column(
+            Row(
                 modifier = Modifier
-                    .weight(1f)
-                    .padding(12.dp)
+                    .padding(24.dp)
+                    //                    .padding(bottom = extraPadding.coerceAtLeast(0.dp))
+                    .animateContentSize(
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioMediumBouncy,
+                            stiffness = Spring.StiffnessLow
+                        )
+                    )
             ) {
-                Text(text = "Hello, ")
-//                Text(text = name, style = MemoriartyTheme.typography.headlineMedium)
-                Text(text = name, style = MaterialTheme.typography.headlineMedium.copy(fontWeight= FontWeight.ExtraBold))
-                if (expanded) {
-                    Text(("Composem ipsum color sit lazy, " +
-                            "padding theme elit, sed do bouncy. ").repeat(name.toInt().mod(10)))
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(12.dp)
+                ) {
+                    Text(text = "Hello, ")
+                    Text(text = name, style = MaterialTheme.typography.headlineLarge)
+//                Text(text = name, style = MaterialTheme.typography.headlineMedium.copy(fontWeight= FontWeight.ExtraBold))
+                    if (expanded) {
+                        Text(
+                            ("Composem ipsum color sit lazy, " +
+                                    "padding theme elit, sed do bouncy. ").repeat(
+                                name.toInt().mod(10)
+                            ),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
+//            Text(if (expanded) "Show less" else "Show more")
+                IconButton(onClick = { expanded = !expanded }) {
+                    Icon(
+
+                        imageVector = if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
+                        contentDescription = if (expanded) "Show less" else "Show more"
+                    )
                 }
             }
-//            Text(if (expanded) "Show less" else "Show more")
-            IconButton(onClick = { expanded = !expanded }) {
-                Icon(
-
-                    imageVector = if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
-                    contentDescription = if (expanded) "Show less" else "Show more"
-                )
-            }
         }
-    }
+//    }
 }
 
 
@@ -160,19 +191,63 @@ private fun Greeting(name: String) {
     uiMode = UI_MODE_NIGHT_YES,
     name = "Dark"
 )
-@Preview(showBackground = true, widthDp = 320)
 @Composable
-fun GreetingsPreview() {
-    MemoriartyTheme {
+fun GreetingsPreviewDark() {
+    MemoriartyTheme(darkTheme = true, dynamicColor = false) {
         Greetings()
     }
 }
 
+@Preview(showBackground = true, widthDp = 320)
+@Composable
+fun GreetingsPreview() {
+    MemoriartyTheme(darkTheme = false, dynamicColor = true) {
+        Greetings()
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun GreetingPreviewDark() {
+    MemoriartyTheme(darkTheme = true, dynamicColor = true) {
+        Greeting("Shpyak")
+    }
+}
+
+@Preview(showBackground = true, backgroundColor = 1)
+@Composable
+fun GreetingPreview() {
+    MemoriartyTheme(darkTheme = false, dynamicColor = true) {
+//        Surface(color = Color.Black) {
+            Greeting("Shpyak")
+//        }
+    }
+}
 
 @Preview
 @Composable
 fun MyAppPreview() {
-    MemoriartyTheme {
+    MemoriartyTheme (dynamicColor = false) {
         AppContainer(Modifier.fillMaxSize())
     }
 }
+
+
+@Composable
+fun FloatingActionButton(
+    backgroundColor: Color = MaterialTheme.colorScheme.secondary,
+) {
+    val derivedColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f)
+    Surface(color = MaterialTheme.colorScheme.primary,
+//      contentColorFor:  if you set a primary background, it will return onPrimary as the
+//      content color
+        contentColor = contentColorFor(backgroundColor)) {
+        Text(
+            text = "Hard coded colors don't respond to theme changes :(",
+            color = Color(0xffff00ff),
+//            color = MaterialTheme.colorScheme.primary
+        )
+    }
+}
+
+
