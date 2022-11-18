@@ -15,6 +15,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
@@ -24,6 +25,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -79,23 +82,6 @@ fun OnboardingScreen(
     }
 }
 
-@Preview(showBackground = true, widthDp = 320, heightDp = 320)
-@Composable
-fun OnboardingPreview() {
-    MemoriartyTheme(dynamicColor = false){
-        OnboardingScreen(onContinueClicked = {})
-    }
-}
-
-@Preview(showBackground = true, widthDp = 320, heightDp = 320)
-@Composable
-// TODO: can I change shouldShowOnboarding var for testing?
-fun AppPreview() {
-    MemoriartyTheme(dynamicColor = false){
-        AppContainer()
-    }
-}
-
 @Composable
 private fun Greetings(
     modifier: Modifier = Modifier,
@@ -140,11 +126,10 @@ private fun Greeting(name: String) {
 //        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface.copy
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
 
-            modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
+            modifier = Modifier.padding(vertical = 4.dp)
         ) {
             Row(
                 modifier = Modifier
-                    .padding(24.dp)
                     //                    .padding(bottom = extraPadding.coerceAtLeast(0.dp))
                     .animateContentSize(
                         animationSpec = spring(
@@ -152,15 +137,50 @@ private fun Greeting(name: String) {
                             stiffness = Spring.StiffnessLow
                         )
                     )
+                    .padding(start = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
+
+                Image(
+                    painter = painterResource(R.drawable.niedi),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(64.dp)
+                        .clip(CircleShape)
+                )
+
+
                 Column(
                     modifier = Modifier
                         .weight(1f)
-                        .padding(12.dp)
+                        .padding(
+                            start = 16.dp,
+                            top = 16.dp,
+                            bottom = 16.dp,
+                        )
                 ) {
-                    Text(text = "Hello, ")
-                    Text(text = name, style = MaterialTheme.typography.headlineLarge)
+                    Text(text = name,
+                        style = MaterialTheme.typography.headlineMedium,
+                        maxLines = 2,
+                        modifier = Modifier.padding(end = 16.dp),
+                    )
 //                Text(text = name, style = MaterialTheme.typography.headlineMedium.copy(fontWeight= FontWeight.ExtraBold))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+
+                    ) {
+                        Text(text = "Hello, I'm the project name if you ever wondered ", maxLines
+                        = 2, modifier = Modifier.weight(0.8f))
+                        IconButton(onClick = { expanded = !expanded }) {
+                            Icon(
+                                tint = MaterialTheme.colorScheme.onSurface,
+                                imageVector = if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
+                                contentDescription = if (expanded) "Show less" else "Show more",
+                                modifier = Modifier.weight(0.2f)
+                            )
+                        }
+                    }
                     if (expanded) {
                         Text(
                             ("Composem ipsum color sit lazy, " +
@@ -170,18 +190,40 @@ private fun Greeting(name: String) {
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }
+
                 }
 //            Text(if (expanded) "Show less" else "Show more")
-                IconButton(onClick = { expanded = !expanded }) {
-                    Icon(
 
-                        imageVector = if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
-                        contentDescription = if (expanded) "Show less" else "Show more"
-                    )
-                }
             }
         }
 //    }
+}
+
+
+@Preview
+@Composable
+fun MyAppPreview() {
+    MemoriartyTheme (dynamicColor = false) {
+        AppContainer(Modifier.fillMaxSize())
+    }
+}
+
+
+@Preview(showBackground = true, widthDp = 320, heightDp = 320)
+@Composable
+fun OnboardingPreview() {
+    MemoriartyTheme(dynamicColor = false){
+        OnboardingScreen(onContinueClicked = {})
+    }
+}
+
+@Preview(showBackground = true, widthDp = 320, heightDp = 320)
+@Composable
+// TODO: can I change shouldShowOnboarding var for testing?
+fun AppPreview() {
+    MemoriartyTheme(dynamicColor = false){
+        AppContainer()
+    }
 }
 
 
@@ -210,7 +252,7 @@ fun GreetingsPreview() {
 @Composable
 fun GreetingPreviewDark() {
     MemoriartyTheme(darkTheme = true, dynamicColor = true) {
-        Greeting("Shpyak")
+        Greeting("I'm the Chunk name ... a very long chunk name in fact")
     }
 }
 
@@ -221,14 +263,6 @@ fun GreetingPreview() {
 //        Surface(color = Color.Black) {
             Greeting("Shpyak")
 //        }
-    }
-}
-
-@Preview
-@Composable
-fun MyAppPreview() {
-    MemoriartyTheme (dynamicColor = false) {
-        AppContainer(Modifier.fillMaxSize())
     }
 }
 
