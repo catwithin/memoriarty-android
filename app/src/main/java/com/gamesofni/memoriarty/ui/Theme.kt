@@ -22,7 +22,8 @@ private val DarkColorScheme = darkColorScheme(
     onPrimary = White,
     secondary = OrangeDark,
     onSecondary = White,
-    error = Red800
+    error = Red800,
+    onBackground = White
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -32,7 +33,8 @@ private val LightColorScheme = lightColorScheme(
     onPrimary = White,
     secondary = Green800,
     onSecondary = White,
-    error = Red800
+    error = Red800,
+    onBackground = White
 )
 
 
