@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -18,23 +19,42 @@ import androidx.compose.ui.graphics.*
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.viewModelFactory
 import com.gamesofni.memoriarty.R
+import com.gamesofni.memoriarty.database.MemoriartyDatabase
+import com.gamesofni.memoriarty.repeat.Repeat
 import com.gamesofni.memoriarty.ui.MemoriartyTheme
+import java.time.Instant.now
+import java.util.*
 
 
 class MainComposeAktivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val application = requireNotNull(this).application
+        val repeatsDao = MemoriartyDatabase.getInstance(application).repeatsDao
+        val overviewModelFactory = OverviewViewModelFactory(repeatsDao, application)
+
+
         setContent {
             MemoriartyTheme(dynamicColor = true) {
-                AppContainer(modifier = Modifier.fillMaxSize())
+                AppContainer(
+                    overviewModelFactory = overviewModelFactory,
+                    modifier = Modifier.fillMaxSize(),
+                )
             }
         }
     }
 }
 
 @Composable
-fun AppContainer(modifier: Modifier = Modifier) {
+fun AppContainer(
+    overviewModelFactory: OverviewViewModelFactory,
+    overviewViewModel: OverviewViewModel = viewModel(factory = overviewModelFactory),
+    modifier: Modifier = Modifier,
+) {
     // TODO: save state of the shouldShowOnboarding into user's settings
     var shouldShowOnboarding by rememberSaveable { mutableStateOf(false) }
 
@@ -51,9 +71,12 @@ fun AppContainer(modifier: Modifier = Modifier) {
                     .fillMaxWidth()
 
             )
-            Column {
+            Column {viewModelFactory {}
                 AddChunk()
-                TodayRepeats()
+                TodayRepeats(
+                    repeats = overviewViewModel.todayRepeats.observeAsState(),
+                    onDoneRepeat = { repeat: Repeat  -> overviewViewModel.markAsDone(repeat)},
+                )
             }
         }
     }
@@ -65,7 +88,7 @@ fun OnboardingScreen(
     onContinueClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // TODO: implement a real onboarding screen
+    // TODO: implement a real onboarding screen, with the kitten
     Column(
         modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -106,14 +129,20 @@ fun AddChunk(modifier: Modifier = Modifier) {
 
 @Composable
 internal fun TodayRepeats(
+    repeats: State<List<Repeat>?>,
+    onDoneRepeat: (Repeat) -> Unit,
+    names: List<String> = List(100) { "$it" },
     modifier: Modifier = Modifier,
-    names: List<String> = List(100) { "$it" }
 ) {
     LazyColumn(modifier = modifier.padding(vertical = 4.dp)) {
-        items(items = names) {
-            name -> RepeatComposable(
-                name = name,
-                onDone = {},
+        items(
+            repeats.value.orEmpty(),
+            // TODO: thoroughly test which items are recomposed - can we do btr
+            key = { it.id }
+        ) {
+            repeat -> RepeatComposable(
+                description = repeat.description,
+                onDone = onDoneRepeat,
                 modifier = modifier
             )
         }
@@ -147,6 +176,14 @@ fun OnboardingPreview() {
     }
 }
 
+// TODO: maybe move out LayoutPreview Data from Aktivity code
+var previewRepeat = Repeat(
+    "long_repeat",
+    Date.from(now()),
+    "I'm a long description of some chunk of info",
+    Date.from(now()),
+"some_project_id",
+    )
 
 @Preview(
     showBackground = true,
@@ -155,25 +192,32 @@ fun OnboardingPreview() {
     name = "Dark"
 )
 @Composable
-fun GreetingsPreviewDark() {
+fun TodayRepeatsPreviewDark() {
     MemoriartyTheme(darkTheme = true, dynamicColor = false) {
-        TodayRepeats()
+        TodayRepeats(
+            derivedStateOf { listOf<Repeat>(previewRepeat) },
+            { repeat: Repeat  -> {}}
+        )
     }
 }
 
 @Preview(showBackground = true, widthDp = 320)
 @Composable
-fun GreetingsPreviewLight() {
+fun TodayRepeatsPreviewLight() {
     MemoriartyTheme(darkTheme = false, dynamicColor = true) {
-        TodayRepeats()
+        TodayRepeats(
+            derivedStateOf { listOf<Repeat>(previewRepeat) },
+            { repeat: Repeat  -> {}}
+        )
     }
 }
 
-@Preview(showBackground = true, widthDp = 320, heightDp = 320)
-@Composable
+//@Preview(showBackground = true, widthDp = 320, heightDp = 320)
+//@Composable
 // TODO: can I change shouldShowOnboarding var for testing?
-fun AppSmallScreenPreview() {
-    MemoriartyTheme(dynamicColor = false){
-        AppContainer()
-    }
-}
+// TODO: replace with testable DAO and ViewModels
+//fun AppSmallScreenPreview() {
+//    MemoriartyTheme(dynamicColor = false){
+//        AppContainer()
+//    }
+//}

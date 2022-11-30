@@ -26,13 +26,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.gamesofni.memoriarty.R
+import com.gamesofni.memoriarty.repeat.Repeat
 import com.gamesofni.memoriarty.ui.MemoriartyTheme
 
 
 @Composable
 internal fun RepeatComposable(
-    name: String,
-    onDone: () -> Unit,
+    description: String,
+    onDone: (Repeat) -> Unit,
     modifier: Modifier = Modifier
 ) {
     // TODO: this state is not saved on device rotation (recyvled composable?)
@@ -84,7 +85,7 @@ internal fun RepeatComposable(
                         bottom = 16.dp,
                     )
             ) {
-                Text(text = name,
+                Text(text = description,
                     style = MaterialTheme.typography.headlineMedium,
                     maxLines = 2,
                     modifier = Modifier.padding(end = 16.dp),
@@ -108,9 +109,7 @@ internal fun RepeatComposable(
                 if (expanded) {
                     Text(
                         ("Composem ipsum color sit lazy, " +
-                                "padding theme elit, sed do bouncy. ").repeat(
-                            name.toInt().mod(10)
-                        ),
+                                "padding theme elit, sed do bouncy. ").repeat(10),
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }

@@ -5,6 +5,7 @@ import androidx.lifecycle.*
 import com.gamesofni.memoriarty.Repository
 import com.gamesofni.memoriarty.database.MemoriartyDatabase
 import com.gamesofni.memoriarty.database.RepeatsDao
+import com.gamesofni.memoriarty.repeat.Repeat
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.lang.Exception
@@ -25,9 +26,12 @@ class OverviewViewModel (
     // The external immutable LiveData for the request status
     val status: LiveData<MemoriartyApiStatus> = _status
 
-    val todayRepeats = repository.todayRepeats
-    val overdueRepeats = repository.overdueRepeats
-
+    private val _todayRepeats = repository.todayRepeats
+    val todayRepeats
+        get() = _todayRepeats
+    private val _overdueRepeats = repository.todayRepeats
+    val overdueRepeats
+        get() = _overdueRepeats
 
     private val _networkError = MutableLiveData<Boolean>()
     val networkError: LiveData<Boolean> = _networkError
@@ -85,6 +89,10 @@ class OverviewViewModel (
 
     fun onRepeatDetailNavigated() {
         _navigateToRepeatDetail.value = null
+    }
+
+    fun markAsDone(item: Repeat) {
+        // TODO: implement done Repeat
     }
 
     override fun onCleared() {
