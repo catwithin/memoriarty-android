@@ -32,7 +32,7 @@ import com.gamesofni.memoriarty.ui.MemoriartyTheme
 
 @Composable
 internal fun RepeatComposable(
-    description: String,
+    repeat: Repeat,
     onDone: (Repeat) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -85,7 +85,7 @@ internal fun RepeatComposable(
                         bottom = 16.dp,
                     )
             ) {
-                Text(text = description,
+                Text(text = repeat.description,
                     style = MaterialTheme.typography.headlineMedium,
                     maxLines = 2,
                     modifier = Modifier.padding(end = 16.dp),
@@ -95,7 +95,7 @@ internal fun RepeatComposable(
                     verticalAlignment = Alignment.CenterVertically,
 
                     ) {
-                    Text(text = "Hello, I'm the project name if you ever wondered ", maxLines
+                    Text(text = "project_id: $repeat.projectId", maxLines
                     = 2, modifier = Modifier.weight(0.8f))
                     IconButton(onClick = { expanded = !expanded }) {
                         Icon(
@@ -129,7 +129,10 @@ internal fun RepeatComposable(
 @Composable
 fun RepeatPreviewDark() {
     MemoriartyTheme(darkTheme = true, dynamicColor = true) {
-        RepeatComposable("I'm the Chunk name ... a very long chunk name in fact", onDone = {})
+        RepeatComposable(
+            previewRepeat,
+            onDone = {}
+        )
     }
 }
 
@@ -137,8 +140,8 @@ fun RepeatPreviewDark() {
 @Composable
 fun RepeatPreviewLight() {
     MemoriartyTheme(darkTheme = false, dynamicColor = true) {
-//        Surface(color = Color.Black) {
-        RepeatComposable("Shpyak", onDone = {})
-//        }
+        RepeatComposable(
+            previewRepeat2,
+            onDone = {})
     }
 }

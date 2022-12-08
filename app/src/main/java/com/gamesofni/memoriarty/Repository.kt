@@ -28,6 +28,8 @@ class Repository(private val db: MemoriartyDatabase) {
         Timber.d("refresh repeats is called");
         withContext(Dispatchers.IO) {
             val today = MemoriartyApi.retrofitService.getRepeats(Config().COOKIE)
+            // TODO: do in transaction
+            db.repeatsDao.clear()
             db.repeatsDao.insertAll(today.asDatabaseRepeats())
         }
     }

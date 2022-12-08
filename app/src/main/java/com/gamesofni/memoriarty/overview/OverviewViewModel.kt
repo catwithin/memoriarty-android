@@ -29,7 +29,7 @@ class OverviewViewModel (
     private val _todayRepeats = repository.todayRepeats
     val todayRepeats
         get() = _todayRepeats
-    private val _overdueRepeats = repository.todayRepeats
+    private val _overdueRepeats = repository.overdueRepeats
     val overdueRepeats
         get() = _overdueRepeats
 

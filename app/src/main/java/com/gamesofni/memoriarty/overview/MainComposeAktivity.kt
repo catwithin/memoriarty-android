@@ -9,6 +9,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -55,6 +57,7 @@ fun AppContainer(
     overviewViewModel: OverviewViewModel = viewModel(factory = overviewModelFactory),
     modifier: Modifier = Modifier,
 ) {
+    viewModelFactory {}
     // TODO: save state of the shouldShowOnboarding into user's settings
     var shouldShowOnboarding by rememberSaveable { mutableStateOf(false) }
 
@@ -62,6 +65,10 @@ fun AppContainer(
         if (shouldShowOnboarding) {
             OnboardingScreen(onContinueClicked = { shouldShowOnboarding = false })
         } else {
+            val todayRepeats by overviewViewModel.todayRepeats.observeAsState()
+            val overdueRepeats by overviewViewModel.overdueRepeats.observeAsState()
+
+            // background
             Image(
                 painter = painterResource(R.drawable.celebration),
                 contentDescription = null,
@@ -71,17 +78,83 @@ fun AppContainer(
                     .fillMaxWidth()
 
             )
-            Column {viewModelFactory {}
-                AddChunk()
-                TodayRepeats(
-                    repeats = overviewViewModel.todayRepeats.observeAsState(),
-                    onDoneRepeat = { repeat: Repeat  -> overviewViewModel.markAsDone(repeat)},
-                )
-            }
+            Repeats(
+                todayRepeats,
+                overdueRepeats,
+                onDoneRepeat = { repeat: Repeat -> overviewViewModel.markAsDone(repeat) },
+                modifier = modifier
+            )
         }
     }
 }
 
+// TODO: find a way to have scrollable lists inside scrollable container
+@Composable
+private fun Repeats(
+    todayRepeats: List<Repeat>?,
+    overdueRepeats: List<Repeat>?,
+    onDoneRepeat: (Repeat) -> Unit,
+    modifier: Modifier
+) {
+    LazyColumn(modifier = modifier
+        .padding(vertical = 4.dp)
+//        .verticalScroll(rememberScrollState(), enabled = true)
+    ) {
+
+        item(){ SectionName(
+            sectionName = "Today Repeats:",
+        )}
+
+        items(
+            todayRepeats.orEmpty(),
+            // TODO: thoroughly test which items are recomposed - can we do btr
+            key = { it.id }
+        ) {
+                repeat -> RepeatComposable(
+            repeat = repeat,
+            onDone = onDoneRepeat,
+            modifier = modifier
+        )}
+
+        item(){ SectionName(
+            sectionName = "Old Repeats to Do:",
+        )}
+
+        items(
+            overdueRepeats.orEmpty(),
+            // TODO: thoroughly test which items are recomposed - can we do btr
+            key = { it.id }
+        ) {
+                repeat -> RepeatComposable(
+            repeat = repeat,
+            onDone = onDoneRepeat,
+            modifier = modifier
+        )}
+
+        item(){ AddChunk()}
+    }
+}
+
+@Composable
+fun SectionName(sectionName: String) {
+    Text(sectionName)
+}
+
+
+//@Composable
+//fun RepeatsSection(
+//    sectionName: String,
+//    repeats: List<Repeat>?,
+//    onDoneRepeat: (Repeat) -> Unit,
+//) {
+//    Column() {
+//
+//    }
+//    ListOfRepeats(
+//        repeats = repeats,
+//        onDoneRepeat = onDoneRepeat,
+//    )
+//}
 
 @Composable
 fun OnboardingScreen(
@@ -109,7 +182,7 @@ fun OnboardingScreen(
 fun AddChunk(modifier: Modifier = Modifier) {
     // TODO: implement add Chunk
     Column(modifier = modifier.padding(16.dp)) {
-        var count by remember { mutableStateOf(0) }
+        var count by  rememberSaveable { mutableStateOf(0) }
 
         if (count > 0) {
             // This text is present if the button has been clicked
@@ -127,27 +200,31 @@ fun AddChunk(modifier: Modifier = Modifier) {
     }
 }
 
-@Composable
-internal fun TodayRepeats(
-    repeats: State<List<Repeat>?>,
-    onDoneRepeat: (Repeat) -> Unit,
-    names: List<String> = List(100) { "$it" },
-    modifier: Modifier = Modifier,
-) {
-    LazyColumn(modifier = modifier.padding(vertical = 4.dp)) {
-        items(
-            repeats.value.orEmpty(),
-            // TODO: thoroughly test which items are recomposed - can we do btr
-            key = { it.id }
-        ) {
-            repeat -> RepeatComposable(
-                description = repeat.description,
-                onDone = onDoneRepeat,
-                modifier = modifier
-            )
-        }
-    }
-}
+
+// TODO: find a way to have scrollable lists inside scrollable container
+//@Composable
+//internal fun ListOfRepeats(
+//    repeats: List<Repeat>?,
+//    onDoneRepeat: (Repeat) -> Unit,
+//    modifier: Modifier = Modifier,
+//) {
+//    LazyColumn(modifier = modifier
+//        .padding(vertical = 4.dp)
+////        .verticalScroll(rememberScrollState(), enabled = false)
+//    ) {
+//        items(
+//            repeats.orEmpty(),
+//            // TODO: thoroughly test which items are recomposed - can we do btr
+//            key = { it.id }
+//        ) {
+//            repeat -> RepeatComposable(
+//                repeat = repeat,
+//                onDone = onDoneRepeat,
+//                modifier = modifier
+//            )
+//        }
+//    }
+//}
 
 @Composable
 fun FloatingActionButton(
@@ -176,7 +253,7 @@ fun OnboardingPreview() {
     }
 }
 
-// TODO: maybe move out LayoutPreview Data from Aktivity code
+// TODO: maybe move out LayoutPreview Data from Activity code
 var previewRepeat = Repeat(
     "long_repeat",
     Date.from(now()),
@@ -184,33 +261,39 @@ var previewRepeat = Repeat(
     Date.from(now()),
 "some_project_id",
     )
-
-@Preview(
-    showBackground = true,
-    widthDp = 320,
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-    name = "Dark"
+var previewRepeat2 = Repeat(
+    "long_repeat2",
+    Date.from(now()),
+    "I'm a long description of some chunk of info",
+    Date.from(now()),
+    "some_project_id",
 )
-@Composable
-fun TodayRepeatsPreviewDark() {
-    MemoriartyTheme(darkTheme = true, dynamicColor = false) {
-        TodayRepeats(
-            derivedStateOf { listOf<Repeat>(previewRepeat) },
-            { repeat: Repeat  -> {}}
-        )
-    }
-}
-
-@Preview(showBackground = true, widthDp = 320)
-@Composable
-fun TodayRepeatsPreviewLight() {
-    MemoriartyTheme(darkTheme = false, dynamicColor = true) {
-        TodayRepeats(
-            derivedStateOf { listOf<Repeat>(previewRepeat) },
-            { repeat: Repeat  -> {}}
-        )
-    }
-}
+//@Preview(
+//    showBackground = true,
+//    widthDp = 320,
+//    uiMode = Configuration.UI_MODE_NIGHT_YES,
+//    name = "Dark"
+//)
+//@Composable
+//fun TodayRepeatsPreviewDark() {
+//    MemoriartyTheme(darkTheme = true, dynamicColor = false) {
+//        ListOfRepeats(
+//            listOf(previewRepeat, previewRepeat2),
+//            { repeat: Repeat  -> {}}
+//        )
+//    }
+//}
+//
+//@Preview(showBackground = true, widthDp = 320)
+//@Composable
+//fun TodayRepeatsPreviewLight() {
+//    MemoriartyTheme(darkTheme = false, dynamicColor = true) {
+//        ListOfRepeats(
+//            listOf(previewRepeat),
+//            { repeat: Repeat  -> {}}
+//        )
+//    }
+//}
 
 //@Preview(showBackground = true, widthDp = 320, heightDp = 320)
 //@Composable
