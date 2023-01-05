@@ -13,19 +13,18 @@ val DATE_FORMAT_3 = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSX", Locale.ENGLISH
 val DATE_FORMAT_4 = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX", Locale.ENGLISH)
 
 data class TodayResponseItem (
-    val sessions: List<RepeatJson>,
+    val sessions: List<ChunkJson>,
     // TODO: also parse projects
     val user: UserItem,
 )
 
-data class RepeatJson (
+data class ChunkJson (
     val _id: String,
     @Json(name = "date") val dateCreated: String,
     val description: String,
     val next_repeat: String?,
     val project_id: String,
-
-    val repeats: List<String>,
+    @Json(name = "repeats") val repeatDates: List<String>,
 )
 
 
@@ -42,11 +41,11 @@ fun TodayResponseItem.asDatabaseRepeats(): List<RepeatEntity> {
 }
 
 // deals with fully repeated items (next_repeat = null)
-fun computeNextRepeat(repeat: RepeatJson): Date {
+fun computeNextRepeat(chunk: ChunkJson): Date {
     // TODO: optimize - maybe additional var on server?
-    if (repeat.next_repeat != null) return stringToDate(repeat.next_repeat)
+    if (chunk.next_repeat != null) return stringToDate(chunk.next_repeat)
     val c = Calendar.getInstance()
-    c.setTime(stringToDate(repeat.dateCreated))
+    c.setTime(stringToDate(chunk.dateCreated))
     val today = Calendar.getInstance()
     while (c.before(today)) {
         c.add(Calendar.YEAR, 1)
@@ -67,6 +66,8 @@ fun TodayResponseItem.asDomainModel(): List<Repeat> {
     }
 }
 
+
+// TODO: rewrite with regexp
 fun stringToDate(s: String): Date {
     var date = Date()
     // TODO: refactor, really lazy right now

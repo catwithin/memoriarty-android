@@ -1,6 +1,7 @@
 package com.gamesofni.memoriarty.repeat
 
 import com.gamesofni.memoriarty.smartTruncate
+import java.time.Instant
 import java.util.*
 
 
@@ -21,4 +22,11 @@ data class Repeat(
 
     val dateToText: String
         get() = toRepeatOn.toString()
+
+    val createdDateToServerFormat: Instant?
+        get() = dateCreated.toInstant()
+
+    val nextRepeatToServerFormat: Instant?
+        get() = toRepeatOn.toInstant()
+
 }

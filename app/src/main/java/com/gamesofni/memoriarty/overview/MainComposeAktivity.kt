@@ -81,7 +81,7 @@ fun AppContainer(
             Repeats(
                 todayRepeats,
                 overdueRepeats,
-                onDoneRepeat = { repeat: Repeat -> overviewViewModel.markAsDone(repeat) },
+                onDoneRepeat = { repeat -> overviewViewModel.markAsDone(repeat) },
                 modifier = modifier
             )
         }

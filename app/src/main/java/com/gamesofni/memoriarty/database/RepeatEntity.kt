@@ -4,6 +4,9 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.gamesofni.memoriarty.repeat.Repeat
+import org.json.JSONArray
+import org.json.JSONObject
+import java.time.Instant.now
 import java.util.*
 
 const val REPEATS_TABLE = "repeats"
@@ -20,7 +23,7 @@ data class RepeatEntity (
     @ColumnInfo(name = "date_created")
     var repeatCreated: Date = Date(),
 
-    var description: String = "Test",
+    var description: String = "",
 
     @ColumnInfo(name = "next_repeat")
     var nextRepeat: Date = Date(),
@@ -41,4 +44,25 @@ fun List<RepeatEntity>.asDomainModel(): List<Repeat> {
             project = it.projectId,
         )
     }
+}
+
+fun repeatUpdatePayload (repeat: Repeat): JSONObject {
+    val jsonObject = JSONObject()
+    jsonObject.put("session", repeatAsJson(repeat))
+    jsonObject.put("date", now())
+
+    return jsonObject
+}
+
+fun repeatAsJson(repeat: Repeat): JSONObject {
+    val repeatObject = JSONObject()
+
+    repeatObject.put("_id", repeat.id)
+    repeatObject.put("description", repeat.description)
+    repeatObject.put("date", repeat.createdDateToServerFormat)
+    repeatObject.put("project_id", repeat.project)
+    repeatObject.put("repeats", JSONArray().put(repeat.nextRepeatToServerFormat))
+    repeatObject.put("next_repeat", repeat.nextRepeatToServerFormat)
+
+    return repeatObject
 }

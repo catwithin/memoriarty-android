@@ -107,11 +107,13 @@ internal fun RepeatComposable(
                     }
                 }
                 if (expanded) {
-                    Text(
-                        ("Composem ipsum color sit lazy, " +
-                                "padding theme elit, sed do bouncy. ").repeat(10),
-                        style = MaterialTheme.typography.bodyMedium
+                    Text(text = repeat.description,
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.padding(end = 16.dp),
                     )
+                    Button(onClick = { onDone(repeat) }) {
+                        Text("Done")
+                    }
                 }
 
             }

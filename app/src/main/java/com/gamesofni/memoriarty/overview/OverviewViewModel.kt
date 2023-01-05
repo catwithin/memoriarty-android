@@ -91,8 +91,21 @@ class OverviewViewModel (
         _navigateToRepeatDetail.value = null
     }
 
-    fun markAsDone(item: Repeat) {
-        // TODO: implement done Repeat
+    fun markAsDone(repeat: Repeat) {
+        // TODO: refactor out network connection handling
+        _networkError.value = false
+        viewModelScope.launch {
+            _status.value = MemoriartyApiStatus.LOADING
+            try {
+                repository.updateRepeat(repeat)
+                _status.value = MemoriartyApiStatus.DONE
+            } catch (e : Exception) {
+                _networkError.value = true
+                Timber.e(e)
+                _status.value = MemoriartyApiStatus.DONE
+            }
+        }
+        refreshDataFromRepository()
     }
 
     override fun onCleared() {

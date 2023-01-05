@@ -4,15 +4,19 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import com.gamesofni.memoriarty.database.MemoriartyDatabase
 import com.gamesofni.memoriarty.database.asDomainModel
+import com.gamesofni.memoriarty.database.repeatUpdatePayload
 import com.gamesofni.memoriarty.network.MemoriartyApi
 import com.gamesofni.memoriarty.network.asDatabaseRepeats
 import com.gamesofni.memoriarty.repeat.Repeat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import okhttp3.MediaType
+import okhttp3.RequestBody
 import timber.log.Timber
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
+
 
 class Repository(private val db: MemoriartyDatabase) {
     val todayRepeats: LiveData<List<Repeat>> = Transformations.map(
@@ -34,7 +38,6 @@ class Repository(private val db: MemoriartyDatabase) {
         }
     }
 
-
     private fun atStartOfDay(): Long { return atDayBoundary(LocalTime.MIN) }
     private fun atEndOfDay(): Long { return atDayBoundary(LocalTime.MAX) }
 
@@ -43,5 +46,19 @@ class Repository(private val db: MemoriartyDatabase) {
         val boundaryOfDayInUTC: ZonedDateTime =   boundaryOfDayInLocal.withZoneSameInstant(ZoneId.of
             ("Etc/UTC"))
         return boundaryOfDayInUTC.toInstant().toEpochMilli()
+    }
+
+    private val JSON_TYPE = MediaType.parse("application/json")
+
+    suspend fun updateRepeat(repeat: Repeat) {
+        Timber.d("update repeat is called with $repeat");
+        val jsonObjectString = repeatUpdatePayload(repeat).toString()
+        Timber.d("sending update $jsonObjectString");
+
+        val body: RequestBody = RequestBody.create(JSON_TYPE, jsonObjectString)
+
+        withContext(Dispatchers.IO) {
+            MemoriartyApi.retrofitService.putRepeat(Config().COOKIE, body)
+        }
     }
 }
