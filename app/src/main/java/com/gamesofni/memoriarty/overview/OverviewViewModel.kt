@@ -105,7 +105,6 @@ class OverviewViewModel (
                 _status.value = MemoriartyApiStatus.DONE
             }
         }
-        refreshDataFromRepository()
     }
 
     override fun onCleared() {

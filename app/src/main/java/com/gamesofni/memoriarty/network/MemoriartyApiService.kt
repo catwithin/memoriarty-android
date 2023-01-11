@@ -7,6 +7,7 @@ import okhttp3.RequestBody
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.*
+import java.util.*
 
 
 private val moshi = Moshi.Builder()
@@ -26,7 +27,7 @@ interface MemoriartyApiService {
         "Referer: https://memoriarty.herokuapp.com/"
 
     )
-    suspend fun putRepeat(@Header("Cookie") cookie:  String, @Body body: RequestBody): String
+    suspend fun putRepeat(@Header("Cookie") cookie:  String, @Body body: RequestBody): ChunkJson
 
 
     @GET("today")

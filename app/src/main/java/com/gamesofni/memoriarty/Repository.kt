@@ -7,6 +7,7 @@ import com.gamesofni.memoriarty.database.asDomainModel
 import com.gamesofni.memoriarty.database.repeatUpdatePayload
 import com.gamesofni.memoriarty.network.MemoriartyApi
 import com.gamesofni.memoriarty.network.asDatabaseRepeats
+import com.gamesofni.memoriarty.network.repeatEntityFromChunk
 import com.gamesofni.memoriarty.repeat.Repeat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -58,7 +59,8 @@ class Repository(private val db: MemoriartyDatabase) {
         val body: RequestBody = RequestBody.create(JSON_TYPE, jsonObjectString)
 
         withContext(Dispatchers.IO) {
-            MemoriartyApi.retrofitService.putRepeat(Config().COOKIE, body)
+            val updatedChunk = MemoriartyApi.retrofitService.putRepeat(Config().COOKIE, body)
+            db.repeatsDao.update(repeatEntityFromChunk(updatedChunk))
         }
     }
 }
