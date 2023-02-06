@@ -29,7 +29,19 @@ private val Domine = FontFamily(
     Font(R.font.domine_bold, FontWeight.Bold)
 )
 
-val JetnewsTypography = Typography(
+private val Lobster = FontFamily(
+    Font(R.font.lobster_regular),
+)
+
+
+val MemoriartyTypography = Typography(
+
+    titleLarge = TextStyle(
+        fontFamily = Lobster,
+        fontWeight = FontWeight.W500,
+        fontSize = 40.sp
+    ),
+
     headlineLarge = TextStyle(
         fontFamily = Montserrat,
         fontWeight = FontWeight.W600,
@@ -43,7 +55,7 @@ val JetnewsTypography = Typography(
     headlineSmall = TextStyle(
         fontFamily = Montserrat,
         fontWeight = FontWeight.W600,
-        fontSize = 20.sp
+        fontSize = 22.sp
     ),
 //    subtitle1 = TextStyle(
 //        fontFamily = Montserrat,
@@ -78,5 +90,5 @@ val JetnewsTypography = Typography(
         fontFamily = Montserrat,
         fontWeight = FontWeight.W500,
         fontSize = 12.sp
-    )
+    ),
 )
