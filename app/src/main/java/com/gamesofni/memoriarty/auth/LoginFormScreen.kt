@@ -9,6 +9,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -33,7 +34,6 @@ import com.gamesofni.memoriarty.ui.MemoriartyTypography
 
 // TODO: move all sizes to dimen, modify for smaller screens
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginFormScreen(navController: NavHostController) {
     Column(
@@ -42,89 +42,126 @@ fun LoginFormScreen(navController: NavHostController) {
             .background(Color.White)
             .fillMaxWidth(0.8f)
             .fillMaxHeight(0.85f)
+//            .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
 
-        val username = remember { mutableStateOf(TextFieldValue()) }
-        val password = remember { mutableStateOf(TextFieldValue()) }
+        Spacer(Modifier.weight(2f))
+        MemoriartyTitle()
+
+        Spacer(Modifier.weight(1f))
+        LoginFormFields(navController)
 
         Spacer(Modifier.weight(2f))
+        SwitchBetweenSignupLogin(navController, "Create account", "New to Memoriarty?")
 
+        Spacer(Modifier.weight(1f))
+    }
+}
+
+@Composable
+private fun SwitchBetweenSignupLogin(
+    navController: NavHostController,
+    promptText: String,
+    linkText: String,
+) {
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
         Text(
-            text = "Memoriarty",
-            style = MemoriartyTypography.titleLarge,
-            modifier = Modifier
+            text = promptText,
+            style = TextStyle(fontSize = 20.sp, fontFamily = FontFamily.Cursive),
         )
 
-        Spacer(Modifier.weight(1f))
-
-        Column(
-            modifier = Modifier.padding(horizontal = 40.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            TextField(
-                label = { Text(text = "Username") },
-                value = username.value,
-                onValueChange = { username.value = it },
-                modifier = Modifier.padding(bottom = 16.dp),
+        ClickableText(
+            text = AnnotatedString(linkText),
+            onClick = { navController.navigate(Routes.SignUp.route) },
+            style = TextStyle(
+                fontSize = 14.sp,
+                fontFamily = FontFamily.Default,
+                textDecoration = TextDecoration.Underline,
             )
+        )
+    }
+}
 
-            TextField(
-                label = { Text(text = "Password") },
-                value = password.value,
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                onValueChange = { password.value = it },
-            )
+@Composable
+private fun MemoriartyTitle() {
+    Text(
+        text = "Memoriarty",
+        style = MemoriartyTypography.titleLarge,
+        modifier = Modifier
+    )
+}
 
-            Button(
-                onClick = { navController.navigate(Routes.Overview.route) },
-                shape = RoundedCornerShape(50.dp),
-                modifier = Modifier
-                    .padding(24.dp, 18.dp, 24.dp, 0.dp)
-                    .height(50.dp)
-                    .fillMaxWidth()
-            ) {
-                Text(text = "Login", style = MemoriartyTypography.headlineSmall)
-            }
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun LoginFormFields(navController: NavHostController) {
+    val username = remember { mutableStateOf(TextFieldValue()) }
+    val password = remember { mutableStateOf(TextFieldValue()) }
 
-            ClickableText(
-                text = AnnotatedString("Forgot password?"),
-                onClick = { navController.navigate(Routes.ForgotPassword.route) },
-                style = TextStyle(
-                    fontSize = 14.sp,
-                    fontFamily = FontFamily.Default,
-                    textDecoration = TextDecoration.Underline,
-                ),
-                modifier = Modifier
-                    .padding(top = 12.dp)
-            )
-        }
+    Column(
+        modifier = Modifier.padding(horizontal = 40.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        UsernameField(username)
+        PasswordField(password)
+        SubmitFormButton(navController, "Login")
+        ForgotPasswordLink(navController)
+    }
+}
 
-        Spacer(Modifier.weight(2f))
+@Composable
+private fun ForgotPasswordLink(navController: NavHostController) {
+    ClickableText(
+        text = AnnotatedString("Forgot password?"),
+        onClick = { navController.navigate(Routes.ForgotPassword.route) },
+        style = TextStyle(
+            fontSize = 14.sp,
+            fontFamily = FontFamily.Default,
+            textDecoration = TextDecoration.Underline,
+        ),
+        modifier = Modifier
+            .padding(top = 12.dp)
+    )
+}
 
-        Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Text(
-                text = "New to Memoriarty?",
-                style = TextStyle(fontSize = 20.sp, fontFamily = FontFamily.Cursive),
-            )
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun PasswordField(password: MutableState<TextFieldValue>) {
+    TextField(
+        label = { Text(text = "Password") },
+        value = password.value,
+        visualTransformation = PasswordVisualTransformation(),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+        onValueChange = { password.value = it },
+    )
+}
 
-            ClickableText(
-                text = AnnotatedString("Create account"),
-                onClick = { navController.navigate(Routes.SignUp.route) },
-                style = TextStyle(
-                    fontSize = 14.sp,
-                    fontFamily = FontFamily.Default,
-                    textDecoration = TextDecoration.Underline,
-                )
-            )
-        }
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun UsernameField(username: MutableState<TextFieldValue>) {
+    TextField(
+        label = { Text(text = "Username") },
+        value = username.value,
+        onValueChange = { username.value = it },
+        modifier = Modifier.padding(bottom = 16.dp),
+    )
+}
 
-        Spacer(Modifier.weight(1f))
+@Composable
+private fun SubmitFormButton(navController: NavHostController, buttonText: String) {
+    Button(
+        onClick = { navController.navigate(Routes.Overview.route) },
+        shape = RoundedCornerShape(50.dp),
+        modifier = Modifier
+            .padding(24.dp, 18.dp, 24.dp, 0.dp)
+            .height(50.dp)
+            .fillMaxWidth()
+    ) {
+        Text(text = buttonText, style = MemoriartyTypography.headlineSmall)
     }
 }
 
