@@ -33,6 +33,7 @@ import com.gamesofni.memoriarty.ui.MemoriartyTypography
 
 
 // TODO: move all sizes to dimen, modify for smaller screens
+// TODO: can pull up column modifier?
 
 @Composable
 fun LoginFormScreen(navController: NavHostController) {
@@ -165,7 +166,7 @@ private fun PasswordField(password: MutableState<TextFieldValue>) {
 }
 
 @Composable
-private fun SubmitFormButton(navController: NavHostController, buttonText: String) {
+internal fun SubmitFormButton(navController: NavHostController, buttonText: String) {
     Button(
         onClick = { navController.navigate(Routes.Overview.route) },
         shape = RoundedCornerShape(50.dp),
@@ -181,7 +182,7 @@ private fun SubmitFormButton(navController: NavHostController, buttonText: Strin
 @Composable
 private fun ForgotPasswordLink(navController: NavHostController) {
     ClickableText(
-        text = AnnotatedString("Forgot password?"),
+        text = AnnotatedString("Forgot your password?"),
         onClick = { navController.navigate(Routes.ForgotPassword.route) },
         style = TextStyle(
             fontSize = 14.sp,
@@ -194,7 +195,7 @@ private fun ForgotPasswordLink(navController: NavHostController) {
 }
 
 @Composable
-private fun SwitchBetweenSignupLogin(
+internal fun SwitchBetweenSignupLogin(
     navController: NavHostController,
     promptText: String,
     linkText: String,
@@ -222,7 +223,7 @@ private fun SwitchBetweenSignupLogin(
 }
 
 @Composable
-private fun MemoriartyTitle() {
+internal fun MemoriartyTitle() {
     Text(
         text = "Memoriarty",
         style = MemoriartyTypography.titleLarge,
