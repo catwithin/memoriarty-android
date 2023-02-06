@@ -53,50 +53,48 @@ fun LoginFormScreen(navController: NavHostController) {
         LoginFormFields(navController)
 
         Spacer(Modifier.weight(2f))
-        SwitchBetweenSignupLogin(navController, "Create account", "New to Memoriarty?")
+        SwitchBetweenSignupLogin(
+            navController,
+            "New to Memoriarty?",
+            "Create account",
+            Routes.SignUp.route
+        )
 
         Spacer(Modifier.weight(1f))
     }
 }
 
 @Composable
-private fun SwitchBetweenSignupLogin(
-    navController: NavHostController,
-    promptText: String,
-    linkText: String,
-) {
+fun SignUpFormScreen(navController: NavHostController) {
     Column(
-        verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .background(Color.White)
+            .fillMaxWidth(0.8f)
+            .fillMaxHeight(0.85f)
+//            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
     ) {
-        Text(
-            text = promptText,
-            style = TextStyle(fontSize = 20.sp, fontFamily = FontFamily.Cursive),
+
+        Spacer(Modifier.weight(2f))
+        MemoriartyTitle()
+
+        Spacer(Modifier.weight(1f))
+        SignUpFormFields(navController = navController)
+
+        Spacer(Modifier.weight(2f))
+        SwitchBetweenSignupLogin(
+            navController,
+            "Already have an account?",
+            "Login now",
+            Routes.Login.route
         )
 
-        ClickableText(
-            text = AnnotatedString(linkText),
-            onClick = { navController.navigate(Routes.SignUp.route) },
-            style = TextStyle(
-                fontSize = 14.sp,
-                fontFamily = FontFamily.Default,
-                textDecoration = TextDecoration.Underline,
-            )
-        )
+        Spacer(Modifier.weight(1f))
     }
 }
 
 @Composable
-private fun MemoriartyTitle() {
-    Text(
-        text = "Memoriarty",
-        style = MemoriartyTypography.titleLarge,
-        modifier = Modifier
-    )
-}
-
-@Composable
-@OptIn(ExperimentalMaterial3Api::class)
 private fun LoginFormFields(navController: NavHostController) {
     val username = remember { mutableStateOf(TextFieldValue()) }
     val password = remember { mutableStateOf(TextFieldValue()) }
@@ -110,6 +108,73 @@ private fun LoginFormFields(navController: NavHostController) {
         PasswordField(password)
         SubmitFormButton(navController, "Login")
         ForgotPasswordLink(navController)
+    }
+}
+
+@Composable
+private fun SignUpFormFields(navController: NavHostController) {
+    val email = remember { mutableStateOf(TextFieldValue()) }
+    val username = remember { mutableStateOf(TextFieldValue()) }
+    val password = remember { mutableStateOf(TextFieldValue()) }
+
+    Column(
+        modifier = Modifier.padding(horizontal = 40.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        EmailField(email)
+        UsernameField(username)
+        PasswordField(password)
+        SubmitFormButton(navController, "Register")
+    }
+}
+
+// TODO: find TextFields with validation
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun EmailField(email: MutableState<TextFieldValue>) {
+    TextField(
+        label = { Text(text = "Email") },
+        value = email.value,
+        onValueChange = { email.value = it },
+        modifier = Modifier.padding(bottom = 16.dp),
+    )
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun UsernameField(username: MutableState<TextFieldValue>) {
+    TextField(
+        label = { Text(text = "Username") },
+        value = username.value,
+        onValueChange = { username.value = it },
+        modifier = Modifier.padding(bottom = 16.dp),
+    )
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun PasswordField(password: MutableState<TextFieldValue>) {
+    TextField(
+        label = { Text(text = "Password") },
+        value = password.value,
+        visualTransformation = PasswordVisualTransformation(),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+        onValueChange = { password.value = it },
+    )
+}
+
+@Composable
+private fun SubmitFormButton(navController: NavHostController, buttonText: String) {
+    Button(
+        onClick = { navController.navigate(Routes.Overview.route) },
+        shape = RoundedCornerShape(50.dp),
+        modifier = Modifier
+            .padding(24.dp, 18.dp, 24.dp, 0.dp)
+            .height(50.dp)
+            .fillMaxWidth()
+    ) {
+        Text(text = buttonText, style = MemoriartyTypography.headlineSmall)
     }
 }
 
@@ -129,40 +194,40 @@ private fun ForgotPasswordLink(navController: NavHostController) {
 }
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
-private fun PasswordField(password: MutableState<TextFieldValue>) {
-    TextField(
-        label = { Text(text = "Password") },
-        value = password.value,
-        visualTransformation = PasswordVisualTransformation(),
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-        onValueChange = { password.value = it },
-    )
-}
-
-@Composable
-@OptIn(ExperimentalMaterial3Api::class)
-private fun UsernameField(username: MutableState<TextFieldValue>) {
-    TextField(
-        label = { Text(text = "Username") },
-        value = username.value,
-        onValueChange = { username.value = it },
-        modifier = Modifier.padding(bottom = 16.dp),
-    )
-}
-
-@Composable
-private fun SubmitFormButton(navController: NavHostController, buttonText: String) {
-    Button(
-        onClick = { navController.navigate(Routes.Overview.route) },
-        shape = RoundedCornerShape(50.dp),
-        modifier = Modifier
-            .padding(24.dp, 18.dp, 24.dp, 0.dp)
-            .height(50.dp)
-            .fillMaxWidth()
+private fun SwitchBetweenSignupLogin(
+    navController: NavHostController,
+    promptText: String,
+    linkText: String,
+    route: String,
+) {
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(text = buttonText, style = MemoriartyTypography.headlineSmall)
+        Text(
+            text = promptText,
+            style = TextStyle(fontSize = 20.sp, fontFamily = FontFamily.Cursive),
+        )
+
+        ClickableText(
+            text = AnnotatedString(linkText),
+            onClick = { navController.navigate(route) },
+            style = TextStyle(
+                fontSize = 14.sp,
+                fontFamily = FontFamily.Default,
+                textDecoration = TextDecoration.Underline,
+            )
+        )
     }
+}
+
+@Composable
+private fun MemoriartyTitle() {
+    Text(
+        text = "Memoriarty",
+        style = MemoriartyTypography.titleLarge,
+        modifier = Modifier
+    )
 }
 
 
