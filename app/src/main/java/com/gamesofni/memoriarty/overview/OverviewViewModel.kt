@@ -2,10 +2,11 @@ package com.gamesofni.memoriarty.overview
 
 import android.app.Application
 import androidx.lifecycle.*
+import com.gamesofni.memoriarty.DataStoreRepository
 import com.gamesofni.memoriarty.Repository
 import com.gamesofni.memoriarty.database.MemoriartyDatabase
-import com.gamesofni.memoriarty.database.RepeatsDao
 import com.gamesofni.memoriarty.repeat.Repeat
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.lang.Exception
@@ -15,16 +16,22 @@ enum class MemoriartyApiStatus { LOADING, ERROR, DONE }
 
 
 class OverviewViewModel (
-    repeatsDao: RepeatsDao,
-    application: Application
+    application: Application,
+    private val dataStoreRepository: DataStoreRepository,
 ) : AndroidViewModel(application) {
 
     private val repository = Repository(MemoriartyDatabase.getInstance(application))
+
+    val userPreferences = dataStoreRepository.readCookieFromDataStore
 
     // The internal MutableLiveData that stores the status of the most recent request
     private val _status = MutableLiveData<MemoriartyApiStatus>()
     // The external immutable LiveData for the request status
     val status: LiveData<MemoriartyApiStatus> = _status
+
+    private val _user = repository.user
+    val user
+        get() = _user
 
     private val _todayRepeats = repository.todayRepeats
     val todayRepeats
@@ -45,30 +52,14 @@ class OverviewViewModel (
         refreshDataFromRepository()
     }
 
-//    private fun getTodayRepeats() {
-//        viewModelScope.launch {
-//            // TODO: how to make it auto-refresh when connection is re-established??
-//            _status.value = MemoriartyApiStatus.LOADING
-//            try {
-//                val today = MemoriartyApi.retrofitService.getRepeats(Config().COOKIE)
-//                _repeats.value = today.sessions
-//
-//                _status.value = MemoriartyApiStatus.DONE
-//
-//            } catch (e: Exception) {
-//                // catching no internet exception
-//                _status.value = MemoriartyApiStatus.ERROR
-//                _repeats.value = listOf()
-//            }
-//        }
-//    }
-
     private fun refreshDataFromRepository() {
+        // TODO: how to make it auto-refresh when connection is re-established??
         _networkError.value = false
         viewModelScope.launch {
             _status.value = MemoriartyApiStatus.LOADING
             try {
-                repository.refreshTodayRepeats()
+                Timber.tag("OverViewModel").d("before refresh")
+                repository.refreshTodayRepeats(userPreferences.firstOrNull())
                 _status.value = MemoriartyApiStatus.DONE
 
             } catch (e : Exception) {
@@ -97,7 +88,7 @@ class OverviewViewModel (
         viewModelScope.launch {
             _status.value = MemoriartyApiStatus.LOADING
             try {
-                repository.updateRepeat(repeat)
+                repository.updateRepeat(repeat, userPreferences.firstOrNull())
                 _status.value = MemoriartyApiStatus.DONE
             } catch (e : Exception) {
                 _networkError.value = true

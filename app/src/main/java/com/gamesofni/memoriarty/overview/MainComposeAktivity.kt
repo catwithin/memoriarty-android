@@ -36,8 +36,10 @@ class MainComposeAktivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val application = requireNotNull(this).application
-        val repeatsDao = MemoriartyDatabase.getInstance(application).repeatsDao
-        val overviewModelFactory = OverviewViewModelFactory(repeatsDao, application)
+//        val repeatsDao = MemoriartyDatabase.getInstance(application).repeatsDao
+
+        val overviewModelFactory = OverviewViewModelFactory(application,
+            DataStoreRepository(dataStore))
 
 
         setContent {

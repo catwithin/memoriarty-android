@@ -73,7 +73,7 @@ class Repository(private val db: MemoriartyDatabase) {
 
     private val JSON_TYPE = MediaType.parse("application/json")
 
-    suspend fun updateRepeat(repeat: Repeat) {
+    suspend fun updateRepeat(repeat: Repeat, userPreferences: UserPreferences?) {
         Timber.d("update repeat is called with $repeat");
         val jsonObjectString = repeatUpdatePayload(repeat).toString()
         Timber.d("sending update $jsonObjectString");
@@ -81,8 +81,55 @@ class Repository(private val db: MemoriartyDatabase) {
         val body: RequestBody = RequestBody.create(JSON_TYPE, jsonObjectString)
 
         withContext(Dispatchers.IO) {
-            val updatedChunk = MemoriartyApi.retrofitService.putRepeat(Config().COOKIE, body)
+            val updatedChunk = MemoriartyApi.retrofitService.putRepeat(userPreferences?.session
+                ?: "", body)
             db.repeatsDao.update(repeatEntityFromChunk(updatedChunk))
+        }
+    }
+}
+
+
+data class UserPreferences(
+    val session: String,
+)
+
+class DataStoreRepository(private val dataStore: DataStore<Preferences>) {
+    private object PreferencesKeys {
+        val SESSION_KEY = stringPreferencesKey("session")
+    }
+
+    suspend fun storeSessionCookie(session: String) {
+        Timber.tag("DataStoreRepository").e("saving cookie: %s", session)
+        dataStore.edit { preference ->
+            preference[SESSION_KEY] = session
+        }
+    }
+
+    val readCookieFromDataStore : Flow<UserPreferences> = dataStore.data
+        .catch { exception ->
+            if (exception is IOException) {
+                Timber.tag("DataStoreRepository").d(exception.message.toString())
+                Timber.tag("DataStoreRepository").e("emit emptyPreferences()")
+                emit(emptyPreferences())
+            } else {
+                throw exception
+            }
+        }
+        .map { preference ->
+            val session = preference[SESSION_KEY] ?: ""
+            Timber.tag("DataStoreRepository").e("in reading cookie: %s", session)
+            UserPreferences(session)
+        }
+
+    suspend fun clearDataStore() {
+        dataStore.edit { preferences ->
+            preferences.clear()
+        }
+    }
+
+    suspend fun removeSession() {
+        dataStore.edit { preference ->
+            preference.remove(SESSION_KEY)
         }
     }
 }
