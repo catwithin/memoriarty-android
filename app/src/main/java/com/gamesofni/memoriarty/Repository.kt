@@ -1,25 +1,45 @@
 package com.gamesofni.memoriarty
 
+import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.*
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
+import com.gamesofni.memoriarty.DataStoreRepository.PreferencesKeys.SESSION_KEY
 import com.gamesofni.memoriarty.database.MemoriartyDatabase
 import com.gamesofni.memoriarty.database.asDomainModel
 import com.gamesofni.memoriarty.database.repeatUpdatePayload
 import com.gamesofni.memoriarty.network.MemoriartyApi
 import com.gamesofni.memoriarty.network.asDatabaseRepeats
 import com.gamesofni.memoriarty.network.repeatEntityFromChunk
+import com.gamesofni.memoriarty.network.userEntityFromJson
 import com.gamesofni.memoriarty.repeat.Repeat
+import com.gamesofni.memoriarty.user.User
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType
 import okhttp3.RequestBody
 import timber.log.Timber
+import java.io.IOException
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 
 
+private const val USER_PREFERENCES_NAME = "user_preferences"
+
+val Context.dataStore by preferencesDataStore(
+    name = USER_PREFERENCES_NAME
+)
+
 class Repository(private val db: MemoriartyDatabase) {
+
+    val user: LiveData<User> = Transformations.map(db.userDao.getUser()) {it.asDomainModel()}
+
     val todayRepeats: LiveData<List<Repeat>> = Transformations.map(
         db.repeatsDao.getTodayRepeats(atStartOfDay(), atEndOfDay()))
             { it.asDomainModel()}
@@ -28,14 +48,16 @@ class Repository(private val db: MemoriartyDatabase) {
         db.repeatsDao.getOverdueRepeats(atStartOfDay()))
     { it.asDomainModel()}
 
-
-    suspend fun refreshTodayRepeats() {
+    suspend fun refreshTodayRepeats(userPreferences: UserPreferences?) {
         Timber.d("refresh repeats is called");
+        Timber.d("session from settings: %s", userPreferences.toString());
         withContext(Dispatchers.IO) {
-            val today = MemoriartyApi.retrofitService.getRepeats(Config().COOKIE)
+            val today = MemoriartyApi.retrofitService.getRepeats(userPreferences?.session ?: "")
             // TODO: do in transaction
             db.repeatsDao.clear()
             db.repeatsDao.insertAll(today.asDatabaseRepeats())
+            db.userDao.deleteUser()
+            db.userDao.insert(userEntityFromJson(today.user))
         }
     }
 

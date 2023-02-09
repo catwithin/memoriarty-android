@@ -2,15 +2,25 @@ package com.gamesofni.memoriarty.database
 
 import android.content.Context
 import androidx.room.*
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import java.util.*
 
 const val DATABASE_NAME = "memoriarty_database"
 
-@Database(entities = [RepeatEntity::class], version = 4, exportSchema = true)
+@Database(
+    entities = [
+        RepeatEntity::class,
+        UserEntity::class,
+    ],
+    version = 5,
+    exportSchema = true)
 @TypeConverters(Converters::class)
 abstract class  MemoriartyDatabase : RoomDatabase() {
 
     abstract val repeatsDao: RepeatsDao
+    abstract val userDao: UserDao
 
     companion object {
 

@@ -54,7 +54,7 @@ private fun computeNextRepeat(chunk: ChunkJson): Date {
 }
 
 // TODO: rewrite with regexp
-private fun stringToDate(s: String): Date {
+internal fun stringToDate(s: String): Date {
     var date = Date()
     // TODO: refactor, really lazy right now
     try {

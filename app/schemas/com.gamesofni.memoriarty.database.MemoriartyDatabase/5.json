@@ -1,0 +1,102 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 5,
+    "identityHash": "37dd84a0863ad982d9430ed3232bfcbf",
+    "entities": [
+      {
+        "tableName": "repeats",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`repeat_id` TEXT NOT NULL, `date_created` INTEGER NOT NULL, `description` TEXT NOT NULL, `next_repeat` INTEGER NOT NULL, `project_id` TEXT NOT NULL, PRIMARY KEY(`repeat_id`))",
+        "fields": [
+          {
+            "fieldPath": "repeatId",
+            "columnName": "repeat_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "repeatCreated",
+            "columnName": "date_created",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nextRepeat",
+            "columnName": "next_repeat",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "projectId",
+            "columnName": "project_id",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "repeat_id"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "user",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`username` TEXT NOT NULL, `email` TEXT NOT NULL, `tz` TEXT NOT NULL, `unconfirmed` INTEGER NOT NULL, `user_created` INTEGER NOT NULL, PRIMARY KEY(`username`))",
+        "fields": [
+          {
+            "fieldPath": "username",
+            "columnName": "username",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "email",
+            "columnName": "email",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tz",
+            "columnName": "tz",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "unconfirmed",
+            "columnName": "unconfirmed",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "userCreated",
+            "columnName": "user_created",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "username"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '37dd84a0863ad982d9430ed3232bfcbf')"
+    ]
+  }
+}

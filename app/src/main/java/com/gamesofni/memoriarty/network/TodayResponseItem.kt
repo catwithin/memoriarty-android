@@ -7,7 +7,7 @@ import com.gamesofni.memoriarty.repeat.Repeat
 data class TodayResponseItem (
     val sessions: List<ChunkJson>,
     // TODO: also parse projects
-    val user: UserItem,
+    val user: UserJson,
 )
 
 fun TodayResponseItem.asDatabaseRepeats(): List<RepeatEntity> {
