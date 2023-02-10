@@ -9,8 +9,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -23,10 +21,18 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.gamesofni.memoriarty.*
 import com.gamesofni.memoriarty.R
-import com.gamesofni.memoriarty.database.MemoriartyDatabase
+import com.gamesofni.memoriarty.auth.LoginFormScreen
+import com.gamesofni.memoriarty.auth.PasswordResetScreen
+import com.gamesofni.memoriarty.auth.SignUpFormScreen
 import com.gamesofni.memoriarty.repeat.Repeat
 import com.gamesofni.memoriarty.ui.MemoriartyTheme
+import timber.log.Timber
 import java.time.Instant.now
 import java.util.*
 
@@ -39,7 +45,8 @@ class MainComposeAktivity : ComponentActivity() {
 //        val repeatsDao = MemoriartyDatabase.getInstance(application).repeatsDao
 
         val overviewModelFactory = OverviewViewModelFactory(application,
-            DataStoreRepository(dataStore))
+            DataStoreRepository(dataStore)
+        )
 
 
         setContent {
@@ -61,36 +68,91 @@ fun AppContainer(
 ) {
     viewModelFactory {}
     // TODO: save state of the shouldShowOnboarding into user's settings
-    var shouldShowOnboarding by rememberSaveable { mutableStateOf(false) }
+    var shouldShowOnboarding by rememberSaveable { mutableStateOf(true) }
 
-    Surface(modifier) {
-        if (shouldShowOnboarding) {
-            OnboardingScreen(onContinueClicked = { shouldShowOnboarding = false })
-        } else {
-            val todayRepeats by overviewViewModel.todayRepeats.observeAsState()
-            val overdueRepeats by overviewViewModel.overdueRepeats.observeAsState()
+    var currentScreen: MemoriartyDestination by remember { mutableStateOf(Overview) }
+    val navController = rememberNavController()
 
-            // background
-            Image(
-                painter = painterResource(R.drawable.celebration),
-                contentDescription = null,
-                contentScale = ContentScale.FillBounds,
-                modifier = modifier
-                    .fillMaxHeight()
-                    .fillMaxWidth()
-
+    BackgroundImg()
+    NavHost(
+        navController = navController,
+        startDestination = Overview.route,
+        modifier = modifier,
+    ) {
+        composable(route = Overview.route) {
+            ListOfRepeats(overviewViewModel, modifier)
+        }
+        composable(route = Login.route) {
+            LoginFormScreen(
+                onForgotPassword = { navController.navigate(Routes.ForgotPassword.route) },
+                onSubmitLogin = { navController.navigate(Routes.Overview.route) },
+                onSwitchToSignup = { navController.navigate(Routes.SignUp.route) },
+                modifier,
             )
-            Repeats(
-                todayRepeats,
-                overdueRepeats,
-                onDoneRepeat = { repeat -> overviewViewModel.markAsDone(repeat) },
-                modifier = modifier
+        }
+        composable(route = SignUp.route) {
+            SignUpFormScreen(
+                onSubmitSignup = { navController.navigate(Routes.Overview.route) },
+                onSwitchToLogin = { navController.navigate(Routes.Login.route) },
+                modifier,
+            )
+        }
+        composable(route = ForgotPassword.route) {
+            PasswordResetScreen(
+                onSubmitPasswordReset = { navController.navigate(Routes.Overview.route) },
+                onSwitchToLogin = { navController.navigate(Routes.Login.route) },
+                modifier,
             )
         }
     }
+
+    if (shouldShowOnboarding) {
+        Timber.e("nav to Login")
+        navController.navigateSingleTop(Login.route)
+//        navController.navigateSingleTop(SignUp.route)
+//        navController.navigateSingleTop(ForgotPassword.route)
+//                LoginFormScreen(navController = rememberNavController())
+
+//                SignUpFormScreen(navController = rememberNavController())
+//            PasswordResetScreen(navController)
+//            OnboardingScreen(onContinueClicked = { shouldShowOnboarding = false })
+        }
+//                else {
+//            ListOfRepeats(overviewViewModel, modifier)
+//            navController.navigateSingleTopTo(Login.route)
+//                }
+//    }
+}
+
+@Composable
+private fun BackgroundImg() {
+    Image(
+        painter = painterResource(R.drawable.celebration),
+        contentDescription = null,
+        contentScale = ContentScale.FillBounds,
+        modifier = Modifier
+            .fillMaxHeight()
+            .fillMaxWidth()
+    )
+}
+
+@Composable
+fun ListOfRepeats(
+    overviewViewModel: OverviewViewModel,
+    modifier: Modifier,
+) {
+    val todayRepeats by overviewViewModel.todayRepeats.observeAsState()
+    val overdueRepeats by overviewViewModel.overdueRepeats.observeAsState()
+    Repeats(
+        todayRepeats,
+        overdueRepeats,
+        onDoneRepeat = { repeat -> overviewViewModel.markAsDone(repeat) },
+        modifier = modifier
+    )
 }
 
 // TODO: find a way to have scrollable lists inside scrollable container
+// https://youtu.be/1ANt65eoNhQ?t=896
 @Composable
 private fun Repeats(
     todayRepeats: List<Repeat>?,
@@ -244,6 +306,11 @@ fun FloatingActionButton(
         )
     }
 }
+
+
+fun NavHostController.navigateSingleTop(route: String) =
+    this.navigate(route) { launchSingleTop = true }
+
 
 // <---- Previews ---->
 

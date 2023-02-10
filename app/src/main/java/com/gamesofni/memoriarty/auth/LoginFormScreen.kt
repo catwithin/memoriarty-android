@@ -25,10 +25,6 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.gamesofni.memoriarty.Routes
-import com.gamesofni.memoriarty.ui.MemoriartyTheme
 import com.gamesofni.memoriarty.ui.MemoriartyTypography
 
 
@@ -36,67 +32,86 @@ import com.gamesofni.memoriarty.ui.MemoriartyTypography
 // TODO: can pull up column modifier?
 
 @Composable
-fun LoginFormScreen(navController: NavHostController) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .background(Color.White)
-            .fillMaxWidth(0.8f)
-            .fillMaxHeight(0.85f)
-//            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
+fun LoginFormScreen(
+    onForgotPassword: () -> Unit,
+    onSubmitLogin: () -> Unit,
+    onSwitchToSignup: () -> Unit,
+    modifier: Modifier,
+) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier
     ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .background(Color.White)
+                .fillMaxWidth(0.8f)
+                .fillMaxHeight(0.85f)
+//            .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+        ) {
+            Spacer(Modifier.weight(2f))
+            MemoriartyTitle()
 
-        Spacer(Modifier.weight(2f))
-        MemoriartyTitle()
+            Spacer(Modifier.weight(1f))
+            LoginFormFields(onForgotPassword, onSubmitLogin)
 
-        Spacer(Modifier.weight(1f))
-        LoginFormFields(navController)
+            Spacer(Modifier.weight(2f))
+            SwitchBetweenSignupLogin(
+                onSwitchToSignup,
+                "New to Memoriarty?",
+                "Create account",
+            )
 
-        Spacer(Modifier.weight(2f))
-        SwitchBetweenSignupLogin(
-            navController,
-            "New to Memoriarty?",
-            "Create account",
-            Routes.SignUp.route
-        )
-
-        Spacer(Modifier.weight(1f))
+            Spacer(Modifier.weight(1f))
+        }
     }
 }
 
 @Composable
-fun SignUpFormScreen(navController: NavHostController) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier
-            .background(Color.White)
-            .fillMaxWidth(0.8f)
-            .fillMaxHeight(0.85f)
-//            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
+fun SignUpFormScreen(
+    onSubmitSignup: () -> Unit,
+    onSwitchToLogin: () -> Unit,
+    modifier: Modifier,
+) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier,
     ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .background(Color.White)
+                .fillMaxWidth(0.8f)
+                .fillMaxHeight(0.85f)
+//            .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+        ) {
+            Spacer(Modifier.weight(2f))
+            MemoriartyTitle()
 
-        Spacer(Modifier.weight(2f))
-        MemoriartyTitle()
+            Spacer(Modifier.weight(1f))
+            SignUpFormFields(onSubmitSignup)
 
-        Spacer(Modifier.weight(1f))
-        SignUpFormFields(navController = navController)
+            Spacer(Modifier.weight(2f))
+            SwitchBetweenSignupLogin(
+                onSwitchToLogin,
+                "Already have an account?",
+                "Login now",
+            )
 
-        Spacer(Modifier.weight(2f))
-        SwitchBetweenSignupLogin(
-            navController,
-            "Already have an account?",
-            "Login now",
-            Routes.Login.route
-        )
-
-        Spacer(Modifier.weight(1f))
+            Spacer(Modifier.weight(1f))
+        }
     }
 }
 
+
 @Composable
-private fun LoginFormFields(navController: NavHostController) {
+private fun LoginFormFields(
+    onForgotPassword: () -> Unit,
+    onSubmitLogin: () -> Unit
+) {
     val username = remember { mutableStateOf(TextFieldValue()) }
     val password = remember { mutableStateOf(TextFieldValue()) }
 
@@ -107,13 +122,13 @@ private fun LoginFormFields(navController: NavHostController) {
     ) {
         UsernameField(username)
         PasswordField(password)
-        SubmitFormButton(navController, "Login")
-        ForgotPasswordLink(navController)
+        SubmitFormButton(onSubmitLogin, "Login")
+        ForgotPasswordLink(onForgotPassword)
     }
 }
 
 @Composable
-private fun SignUpFormFields(navController: NavHostController) {
+private fun SignUpFormFields(onSubmitSignUp: () -> Unit) {
     val email = remember { mutableStateOf(TextFieldValue()) }
     val username = remember { mutableStateOf(TextFieldValue()) }
     val password = remember { mutableStateOf(TextFieldValue()) }
@@ -126,9 +141,10 @@ private fun SignUpFormFields(navController: NavHostController) {
         EmailField(email)
         UsernameField(username)
         PasswordField(password)
-        SubmitFormButton(navController, "Register")
+        SubmitFormButton(onSubmitSignUp, "Register")
     }
 }
+
 
 // TODO: find TextFields with validation
 @OptIn(ExperimentalMaterial3Api::class)
@@ -165,10 +181,11 @@ private fun PasswordField(password: MutableState<TextFieldValue>) {
     )
 }
 
+
 @Composable
-internal fun SubmitFormButton(navController: NavHostController, buttonText: String) {
+internal fun SubmitFormButton(onSubmit: () -> Unit, buttonText: String) {
     Button(
-        onClick = { navController.navigate(Routes.Overview.route) },
+        onClick = onSubmit,
         shape = RoundedCornerShape(50.dp),
         modifier = Modifier
             .padding(24.dp, 18.dp, 24.dp, 0.dp)
@@ -179,11 +196,12 @@ internal fun SubmitFormButton(navController: NavHostController, buttonText: Stri
     }
 }
 
+
 @Composable
-private fun ForgotPasswordLink(navController: NavHostController) {
+private fun ForgotPasswordLink(onForgotPassword: () -> Unit) {
     ClickableText(
         text = AnnotatedString("Forgot your password?"),
-        onClick = { navController.navigate(Routes.ForgotPassword.route) },
+        onClick = { _ -> onForgotPassword() },
         style = TextStyle(
             fontSize = 14.sp,
             fontFamily = FontFamily.Default,
@@ -194,12 +212,12 @@ private fun ForgotPasswordLink(navController: NavHostController) {
     )
 }
 
+
 @Composable
 internal fun SwitchBetweenSignupLogin(
-    navController: NavHostController,
+    onSwitchBetween: () -> Unit,
     promptText: String,
     linkText: String,
-    route: String,
 ) {
     Column(
         verticalArrangement = Arrangement.Center,
@@ -212,7 +230,7 @@ internal fun SwitchBetweenSignupLogin(
 
         ClickableText(
             text = AnnotatedString(linkText),
-            onClick = { navController.navigate(route) },
+            onClick = { _ -> onSwitchBetween() },
             style = TextStyle(
                 fontSize = 14.sp,
                 fontFamily = FontFamily.Default,
@@ -221,6 +239,7 @@ internal fun SwitchBetweenSignupLogin(
         )
     }
 }
+
 
 @Composable
 internal fun MemoriartyTitle() {
@@ -233,12 +252,16 @@ internal fun MemoriartyTitle() {
 
 
 // TODO: find out why preview doesn't work - bc of the rememberNavController fun call?
-@Preview(showSystemUi = true, showBackground = true)
-@Composable
-fun LoginFormScreenPreview() {
-    MemoriartyTheme(dynamicColor = true){
-        Surface(Modifier) {
-            LoginFormScreen(rememberNavController())
-        }
-    }
-}
+//@Preview(showSystemUi = true, showBackground = true)
+//@Composable
+//fun LoginFormScreenPreview() {
+//    MemoriartyTheme(dynamicColor = true){
+//        Surface(Modifier) {
+//            LoginFormScreen(
+//                rememberNavController(),
+//                { navController.navigate(Routes.Overview.route) },
+//                Modifier
+//            )
+//        }
+//    }
+//}
