@@ -34,6 +34,7 @@ import com.gamesofni.memoriarty.ui.MemoriartyTheme
 internal fun RepeatComposable(
     repeat: Repeat,
     onDone: (Repeat) -> Unit,
+    onOpenDetailedView: (Repeat) -> Unit,
     modifier: Modifier = Modifier
 ) {
     // TODO: this state is not saved on device rotation (recyvled composable?)
@@ -111,8 +112,14 @@ internal fun RepeatComposable(
                         style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier.padding(end = 16.dp),
                     )
-                    Button(onClick = { onDone(repeat) }) {
-                        Text("Done")
+                    Row() {
+                        Button(onClick = { onDone(repeat) }) {
+                            Text("Done")
+                        }
+                        Button(onClick = { onOpenDetailedView(repeat) }) {
+                            Text("Details")
+                        }
+
                     }
                 }
 

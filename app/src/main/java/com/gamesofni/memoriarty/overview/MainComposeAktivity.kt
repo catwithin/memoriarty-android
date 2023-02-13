@@ -72,15 +72,32 @@ fun AppContainer(
 
     var currentScreen: MemoriartyDestination by remember { mutableStateOf(Overview) }
     val navController = rememberNavController()
+    val currentBackStack by navController.currentBackStackEntryAsState()
+    val currentDestination = currentBackStack?.destination
+
 
     BackgroundImg()
+
     NavHost(
         navController = navController,
         startDestination = Overview.route,
         modifier = modifier,
     ) {
         composable(route = Overview.route) {
-            ListOfRepeats(overviewViewModel, modifier)
+            ListOfRepeats(
+                overviewViewModel,
+                onDetailClicked = { repeatId -> navController.navigate("${RepeatDetail
+                    .route}/$repeatId") },
+                modifier,
+            )
+        }
+        composable(
+            route = RepeatDetail.routeWithArgs,
+            arguments = RepeatDetail.arguments,
+        ) { navBackStackEntry ->
+            val repeatId = navBackStackEntry.arguments?.getString(RepeatDetail.repeatIdArg)?: ""
+
+            RepeatDetailScreen(repeatId, modifier)
         }
         composable(route = Login.route) {
             LoginFormScreen(
@@ -139,6 +156,7 @@ private fun BackgroundImg() {
 @Composable
 fun ListOfRepeats(
     overviewViewModel: OverviewViewModel,
+    onDetailClicked:  (String) -> Unit,
     modifier: Modifier,
 ) {
     val todayRepeats by overviewViewModel.todayRepeats.observeAsState()
@@ -147,6 +165,7 @@ fun ListOfRepeats(
         todayRepeats,
         overdueRepeats,
         onDoneRepeat = { repeat -> overviewViewModel.markAsDone(repeat) },
+        onOpenDetailedView = { repeat -> onDetailClicked(repeat.id) },
         modifier = modifier
     )
 }
@@ -158,6 +177,7 @@ private fun Repeats(
     todayRepeats: List<Repeat>?,
     overdueRepeats: List<Repeat>?,
     onDoneRepeat: (Repeat) -> Unit,
+    onOpenDetailedView: (Repeat) -> Unit,
     modifier: Modifier
 ) {
     LazyColumn(modifier = modifier
@@ -177,6 +197,7 @@ private fun Repeats(
                 repeat -> RepeatComposable(
             repeat = repeat,
             onDone = onDoneRepeat,
+            onOpenDetailedView = onOpenDetailedView,
             modifier = modifier
         )}
 
@@ -192,6 +213,7 @@ private fun Repeats(
                 repeat -> RepeatComposable(
             repeat = repeat,
             onDone = onDoneRepeat,
+            onOpenDetailedView = onOpenDetailedView,
             modifier = modifier
         )}
 
@@ -337,21 +359,24 @@ var previewRepeat2 = Repeat(
     Date.from(now()),
     "some_project_id",
 )
-//@Preview(
-//    showBackground = true,
-//    widthDp = 320,
-//    uiMode = Configuration.UI_MODE_NIGHT_YES,
-//    name = "Dark"
-//)
-//@Composable
-//fun TodayRepeatsPreviewDark() {
-//    MemoriartyTheme(darkTheme = true, dynamicColor = false) {
-//        ListOfRepeats(
-//            listOf(previewRepeat, previewRepeat2),
-//            { repeat: Repeat  -> {}}
-//        )
-//    }
-//}
+@Preview(
+    showBackground = true,
+    widthDp = 320,
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    name = "Dark"
+)
+@Composable
+fun TodayRepeatsPreviewDark() {
+    MemoriartyTheme(darkTheme = true, dynamicColor = false) {
+        Repeats(
+            listOf(previewRepeat, previewRepeat2),
+            listOf(),
+            { repeat: Repeat  -> {}},
+            { repeat: Repeat  -> {}},
+            Modifier
+        )
+    }
+}
 //
 //@Preview(showBackground = true, widthDp = 320)
 //@Composable

@@ -1,5 +1,8 @@
 package com.gamesofni.memoriarty
 
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
+
 
 sealed class Routes(val route: String) {
     object SignUp : Routes("SignUp")
@@ -15,6 +18,15 @@ interface MemoriartyDestination {
 
 object Overview : MemoriartyDestination {
     override val route = "overview"
+}
+
+object RepeatDetail : MemoriartyDestination {
+    override val route = "detailed_repeat"
+    const val repeatIdArg = "repeat_id"
+    val routeWithArgs = "${route}/{${repeatIdArg}}"
+    val arguments = listOf(
+        navArgument(repeatIdArg) { type = NavType.StringType }
+    )
 }
 
 object Login : MemoriartyDestination {
