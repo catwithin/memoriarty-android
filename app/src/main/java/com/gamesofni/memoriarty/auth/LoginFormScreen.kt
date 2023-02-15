@@ -10,6 +10,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -22,7 +23,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.gamesofni.memoriarty.ui.MemoriartyTypography
@@ -33,8 +33,9 @@ import com.gamesofni.memoriarty.ui.MemoriartyTypography
 
 @Composable
 fun LoginFormScreen(
+    loginViewModel: AuthorisationViewModel,
     onForgotPassword: () -> Unit,
-    onSubmitLogin: () -> Unit,
+    onLoginSuccessNavigate: () -> Unit,
     onSwitchToSignup: () -> Unit,
     modifier: Modifier,
 ) {
@@ -55,7 +56,7 @@ fun LoginFormScreen(
             MemoriartyTitle()
 
             Spacer(Modifier.weight(1f))
-            LoginFormFields(onForgotPassword, onSubmitLogin)
+            LoginFormFields(onForgotPassword, onLoginSuccessNavigate, loginViewModel)
 
             Spacer(Modifier.weight(2f))
             SwitchBetweenSignupLogin(
@@ -110,19 +111,20 @@ fun SignUpFormScreen(
 @Composable
 private fun LoginFormFields(
     onForgotPassword: () -> Unit,
-    onSubmitLogin: () -> Unit
+    onLoginSuccessNavigate: () -> Unit,
+    loginViewModel: AuthorisationViewModel,
 ) {
-    val username = remember { mutableStateOf(TextFieldValue()) }
-    val password = remember { mutableStateOf(TextFieldValue()) }
+    val username = loginViewModel.username.observeAsState()
+    val password = loginViewModel.password.observeAsState()
 
     Column(
         modifier = Modifier.padding(horizontal = 40.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        UsernameField(username)
-        PasswordField(password)
-        SubmitFormButton(onSubmitLogin, "Login")
+        UsernameField(username.value?:"") { loginViewModel.setUsername(it) }
+        PasswordField(password.value?:"") { loginViewModel.setPassword(it) }
+        SubmitFormButton({loginViewModel.submitLogin(onLoginSuccessNavigate)},"Login")
         ForgotPasswordLink(onForgotPassword)
     }
 }
@@ -160,24 +162,24 @@ fun EmailField(email: MutableState<TextFieldValue>) {
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-private fun UsernameField(username: MutableState<TextFieldValue>) {
+private fun UsernameField(username:String, onChange: (String) -> Unit) {
     TextField(
         label = { Text(text = "Username") },
-        value = username.value,
-        onValueChange = { username.value = it },
+        value = username,
+        onValueChange = { onChange(it) },
         modifier = Modifier.padding(bottom = 16.dp),
     )
 }
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-private fun PasswordField(password: MutableState<TextFieldValue>) {
+private fun PasswordField(password: String, onChange: (String) -> Unit) {
     TextField(
         label = { Text(text = "Password") },
-        value = password.value,
+        value = password,
         visualTransformation = PasswordVisualTransformation(),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-        onValueChange = { password.value = it },
+        onValueChange = { onChange(it) },
     )
 }
 

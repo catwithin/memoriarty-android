@@ -4,6 +4,7 @@ import com.gamesofni.memoriarty.Config
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.RequestBody
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.*
@@ -35,6 +36,13 @@ interface MemoriartyApiService {
     // suspend to be able to call it from within a coroutine
     suspend fun getRepeats(@Header("Cookie") cookie:  String): TodayResponseItem
 
+
+    @POST("login")
+    @Headers(
+        "Content-Type: application/json",
+        "Referer: https://memoriarty.herokuapp.com/"
+    )
+    suspend fun loginUser(@Body body: RequestBody): Response<LoginResponseJson>
 }
 
 // initialize the Retrofit service

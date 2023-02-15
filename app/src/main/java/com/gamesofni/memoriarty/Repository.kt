@@ -10,8 +10,7 @@ import com.gamesofni.memoriarty.DataStoreRepository.PreferencesKeys.SESSION_KEY
 import com.gamesofni.memoriarty.database.MemoriartyDatabase
 import com.gamesofni.memoriarty.database.asDomainModel
 import com.gamesofni.memoriarty.database.repeatUpdatePayload
-import com.gamesofni.memoriarty.network.MemoriartyApi
-import com.gamesofni.memoriarty.network.asDatabaseRepeats
+import com.gamesofni.memoriarty.network.*
 import com.gamesofni.memoriarty.network.repeatEntityFromChunk
 import com.gamesofni.memoriarty.network.userEntityFromJson
 import com.gamesofni.memoriarty.repeat.Repeat
@@ -23,6 +22,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType
 import okhttp3.RequestBody
+import org.json.JSONObject
 import timber.log.Timber
 import java.io.IOException
 import java.time.LocalTime
@@ -48,11 +48,11 @@ class Repository(private val db: MemoriartyDatabase) {
         db.repeatsDao.getOverdueRepeats(atStartOfDay()))
     { it.asDomainModel()}
 
-    suspend fun refreshTodayRepeats(userPreferences: UserPreferences?) {
+    suspend fun refreshTodayRepeats(userPreferences: UserPreferences) {
         Timber.d("refresh repeats is called");
-        Timber.d("session from settings: %s", userPreferences.toString());
+        Timber.d("session from settings: %s", userPreferences.session);
         withContext(Dispatchers.IO) {
-            val today = MemoriartyApi.retrofitService.getRepeats(userPreferences?.session ?: "")
+            val today = MemoriartyApi.retrofitService.getRepeats(userPreferences.session)
             // TODO: do in transaction
             db.repeatsDao.clear()
             db.repeatsDao.insertAll(today.asDatabaseRepeats())
@@ -86,6 +86,33 @@ class Repository(private val db: MemoriartyDatabase) {
             db.repeatsDao.update(repeatEntityFromChunk(updatedChunk))
         }
     }
+
+    suspend fun loginUser(username: String, password: String): String {
+        Timber.d("login user: $username $password")
+        val jsonObjectString = userLoginPayload(username, password).toString()
+        val body: RequestBody = RequestBody.create(JSON_TYPE, jsonObjectString)
+        var token = ""
+        withContext(Dispatchers.IO) {
+            val response = MemoriartyApi.retrofitService.loginUser(body)
+            Timber.d("loginResponse: $response")
+            if (response.isSuccessful()) {
+                // TODO: do in intercepter
+                token = response.headers().get("Set-Cookie") ?: ""
+
+                db.userDao.deleteUser()
+                // TODO: API 200 always sends user, but still feels bad to use !!
+                db.userDao.insert(userEntityFromJson(response.body()!!.user))
+            }
+        }
+        return token
+    }
+}
+
+fun userLoginPayload (username: String, password: String): JSONObject {
+    val jsonObject = JSONObject()
+    jsonObject.put("username", username)
+    jsonObject.put("password", password)
+    return jsonObject
 }
 
 

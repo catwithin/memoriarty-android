@@ -6,6 +6,7 @@ import com.gamesofni.memoriarty.DataStoreRepository
 import com.gamesofni.memoriarty.Repository
 import com.gamesofni.memoriarty.database.MemoriartyDatabase
 import com.gamesofni.memoriarty.repeat.Repeat
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -43,10 +44,6 @@ class OverviewViewModel (
     private val _networkError = MutableLiveData<Boolean>()
     val networkError: LiveData<Boolean> = _networkError
 
-    private val _navigateToRepeatDetail = MutableLiveData<String?>()
-    val navigateToRepeatDetail
-        get() = _navigateToRepeatDetail
-
     init {
         Timber.i("OverviewViewModel initialized")
         refreshDataFromRepository()
@@ -59,10 +56,12 @@ class OverviewViewModel (
             _status.value = MemoriartyApiStatus.LOADING
             try {
                 Timber.tag("OverViewModel").d("before refresh")
-                repository.refreshTodayRepeats(userPreferences.firstOrNull())
+                repository.refreshTodayRepeats(userPreferences.first())
                 _status.value = MemoriartyApiStatus.DONE
 
             } catch (e : Exception) {
+                // TODO: more specific unauthorised error handling
+                Timber.tag("OverViewModel").d("network error")
                 _networkError.value = true
                 // TODO: think of how to handle errors: when use data from db, how show the
                 //  network error status etc.
@@ -72,14 +71,6 @@ class OverviewViewModel (
                 _status.value = MemoriartyApiStatus.DONE
             }
         }
-    }
-
-    fun onRepeatClicked(description: String) {
-        _navigateToRepeatDetail.value = description
-    }
-
-    fun onRepeatDetailNavigated() {
-        _navigateToRepeatDetail.value = null
     }
 
     fun markAsDone(repeat: Repeat) {

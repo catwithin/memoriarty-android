@@ -1,11 +1,14 @@
 package com.gamesofni.memoriarty.overview
 
+import android.app.Application
 import android.content.res.Configuration
 import android.os.Bundle
+import android.widget.Toast
 import androidx.compose.ui.unit.dp
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -17,20 +20,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.viewModelFactory
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.gamesofni.memoriarty.*
 import com.gamesofni.memoriarty.R
-import com.gamesofni.memoriarty.auth.LoginFormScreen
-import com.gamesofni.memoriarty.auth.PasswordResetScreen
-import com.gamesofni.memoriarty.auth.SignUpFormScreen
+import com.gamesofni.memoriarty.auth.*
 import com.gamesofni.memoriarty.repeat.Repeat
+import com.gamesofni.memoriarty.repeat.RepeatDetailScreen
 import com.gamesofni.memoriarty.ui.MemoriartyTheme
 import timber.log.Timber
 import java.time.Instant.now
@@ -48,11 +53,17 @@ class MainComposeAktivity : ComponentActivity() {
             DataStoreRepository(dataStore)
         )
 
+        val loginViewModelFactory = AuthorisationViewModelFactory(application,
+            DataStoreRepository(dataStore)
+        )
+
 
         setContent {
             MemoriartyTheme(dynamicColor = true) {
                 AppContainer(
                     overviewModelFactory = overviewModelFactory,
+                    loginViewModelFactory = loginViewModelFactory,
+                    application = application,
                     modifier = Modifier.fillMaxSize(),
                 )
             }
@@ -64,11 +75,14 @@ class MainComposeAktivity : ComponentActivity() {
 fun AppContainer(
     overviewModelFactory: OverviewViewModelFactory,
     overviewViewModel: OverviewViewModel = viewModel(factory = overviewModelFactory),
+    loginViewModelFactory: AuthorisationViewModelFactory,
+    loginViewModel: AuthorisationViewModel = viewModel(factory = loginViewModelFactory),
+    application: Application,
     modifier: Modifier = Modifier,
 ) {
     viewModelFactory {}
     // TODO: save state of the shouldShowOnboarding into user's settings
-    var shouldShowOnboarding by rememberSaveable { mutableStateOf(true) }
+    var shouldShowOnboarding by rememberSaveable { mutableStateOf(false) }
 
     var currentScreen: MemoriartyDestination by remember { mutableStateOf(Overview) }
     val navController = rememberNavController()
@@ -78,16 +92,22 @@ fun AppContainer(
 
     BackgroundImg()
 
+    val navigateToLogin = { navController.navigate(Routes.Login.route) }
     NavHost(
         navController = navController,
         startDestination = Overview.route,
         modifier = modifier,
     ) {
         composable(route = Overview.route) {
+            Timber.d("navigated to Overview.route)")
+
             ListOfRepeats(
                 overviewViewModel,
-                onDetailClicked = { repeatId -> navController.navigate("${RepeatDetail
-                    .route}/$repeatId") },
+                onDetailClicked = { repeatId ->
+                    navController.navigate("${RepeatDetail.route}/$repeatId")
+                },
+                onAuthorisationError =  { navController.navigate(Routes.Login.route) },
+                application = application,
                 modifier,
             )
         }
@@ -100,9 +120,12 @@ fun AppContainer(
             RepeatDetailScreen(repeatId, modifier)
         }
         composable(route = Login.route) {
+            Timber.d("navigated to Login)")
+
             LoginFormScreen(
+                loginViewModel = loginViewModel,
                 onForgotPassword = { navController.navigate(Routes.ForgotPassword.route) },
-                onSubmitLogin = { navController.navigate(Routes.Overview.route) },
+                onLoginSuccessNavigate = { navController.navigate(Routes.Overview.route) },
                 onSwitchToSignup = { navController.navigate(Routes.SignUp.route) },
                 modifier,
             )
@@ -110,22 +133,22 @@ fun AppContainer(
         composable(route = SignUp.route) {
             SignUpFormScreen(
                 onSubmitSignup = { navController.navigate(Routes.Overview.route) },
-                onSwitchToLogin = { navController.navigate(Routes.Login.route) },
+                onSwitchToLogin = navigateToLogin,
                 modifier,
             )
         }
         composable(route = ForgotPassword.route) {
             PasswordResetScreen(
                 onSubmitPasswordReset = { navController.navigate(Routes.Overview.route) },
-                onSwitchToLogin = { navController.navigate(Routes.Login.route) },
+                onSwitchToLogin = navigateToLogin,
                 modifier,
             )
         }
     }
 
     if (shouldShowOnboarding) {
-        Timber.e("nav to Login")
-        navController.navigateSingleTop(Login.route)
+        navController.navigateSingleTop(Onboarding.route)
+//        navigateToLogin()
 //        navController.navigateSingleTop(SignUp.route)
 //        navController.navigateSingleTop(ForgotPassword.route)
 //                LoginFormScreen(navController = rememberNavController())
@@ -156,11 +179,23 @@ private fun BackgroundImg() {
 @Composable
 fun ListOfRepeats(
     overviewViewModel: OverviewViewModel,
-    onDetailClicked:  (String) -> Unit,
+    onDetailClicked: (String) -> Unit,
+    onAuthorisationError: () -> Unit,
+    application: Application,
     modifier: Modifier,
 ) {
     val todayRepeats by overviewViewModel.todayRepeats.observeAsState()
     val overdueRepeats by overviewViewModel.overdueRepeats.observeAsState()
+
+    overviewViewModel.networkError.observe( LocalLifecycleOwner.current) { isError ->
+        Timber.d("isError: $isError, overviewModel.netwErr: ${overviewViewModel.networkError.value}")
+        if (isError) {
+            Toast.makeText(application.applicationContext, "Network Error", Toast.LENGTH_LONG)
+                .show()
+            onAuthorisationError()
+        }
+    }
+
     Repeats(
         todayRepeats,
         overdueRepeats,

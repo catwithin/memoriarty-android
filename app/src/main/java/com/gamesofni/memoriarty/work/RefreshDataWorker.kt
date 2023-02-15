@@ -7,8 +7,7 @@ import com.gamesofni.memoriarty.DataStoreRepository
 import com.gamesofni.memoriarty.Repository
 import com.gamesofni.memoriarty.dataStore
 import com.gamesofni.memoriarty.database.MemoriartyDatabase
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.single
+import kotlinx.coroutines.flow.first
 import retrofit2.HttpException
 
 class RefreshDataWorker (appContext: Context, params: WorkerParameters) :
@@ -24,7 +23,7 @@ class RefreshDataWorker (appContext: Context, params: WorkerParameters) :
         val userPreferences = DataStoreRepository(applicationContext.dataStore)
             .readCookieFromDataStore
         try {
-            repository.refreshTodayRepeats(userPreferences.firstOrNull())
+            repository.refreshTodayRepeats(userPreferences.first())
         } catch (e: HttpException) {
             return Result.retry()
         }
