@@ -20,12 +20,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.viewModelFactory
-import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -92,21 +90,21 @@ fun AppContainer(
 
     BackgroundImg()
 
-    val navigateToLogin = { navController.navigate(Routes.Login.route) }
     NavHost(
         navController = navController,
         startDestination = Overview.route,
         modifier = modifier,
     ) {
         composable(route = Overview.route) {
-            Timber.d("navigated to Overview.route)")
-
+            Timber.d("navigated to Overview")
             ListOfRepeats(
+                // TODO: state hoist overviewModel
                 overviewViewModel,
                 onDetailClicked = { repeatId ->
                     navController.navigate("${RepeatDetail.route}/$repeatId")
                 },
-                onAuthorisationError =  { navController.navigate(Routes.Login.route) },
+                navigateToLogin =  { navController.navigateSingleTop(Login.route) },
+                onLogout = { loginViewModel.submitLogout { navController.navigate(Login.route) } },
                 application = application,
                 modifier,
             )
@@ -124,23 +122,23 @@ fun AppContainer(
 
             LoginFormScreen(
                 loginViewModel = loginViewModel,
-                onForgotPassword = { navController.navigate(Routes.ForgotPassword.route) },
-                onLoginSuccessNavigate = { navController.navigate(Routes.Overview.route) },
-                onSwitchToSignup = { navController.navigate(Routes.SignUp.route) },
+                onForgotPassword = { navController.navigate(ForgotPassword.route) },
+                onLoginSuccessNavigate = { navController.navigate(Overview.route) },
+                onSwitchToSignup = { navController.navigate(SignUp.route) },
                 modifier,
             )
         }
         composable(route = SignUp.route) {
             SignUpFormScreen(
-                onSubmitSignup = { navController.navigate(Routes.Overview.route) },
-                onSwitchToLogin = navigateToLogin,
+                onSubmitSignup = { navController.navigate(Overview.route) },
+                onSwitchToLogin =  { navController.navigate(Login.route) },
                 modifier,
             )
         }
         composable(route = ForgotPassword.route) {
             PasswordResetScreen(
-                onSubmitPasswordReset = { navController.navigate(Routes.Overview.route) },
-                onSwitchToLogin = navigateToLogin,
+                onSubmitPasswordReset = { navController.navigate(Overview.route) },
+                onSwitchToLogin =  { navController.navigate(Login.route) },
                 modifier,
             )
         }
@@ -152,8 +150,8 @@ fun AppContainer(
         }
     }
 
-    if (shouldShowOnboarding) {
-        navController.navigateSingleTop(Onboarding.route)
+//    if (shouldShowOnboarding) {
+//        navController.navigateSingleTop(Onboarding.route)
 //        navigateToLogin()
 //        navController.navigateSingleTop(SignUp.route)
 //        navController.navigateSingleTop(ForgotPassword.route)
@@ -162,7 +160,7 @@ fun AppContainer(
 //                SignUpFormScreen(navController = rememberNavController())
 //            PasswordResetScreen(navController)
 //            OnboardingScreen(onContinueClicked = { shouldShowOnboarding = false })
-        }
+//        }
 //                else {
 //            ListOfRepeats(overviewViewModel, modifier)
 //            navController.navigateSingleTopTo(Login.route)
@@ -186,29 +184,33 @@ private fun BackgroundImg() {
 fun ListOfRepeats(
     overviewViewModel: OverviewViewModel,
     onDetailClicked: (String) -> Unit,
-    onAuthorisationError: () -> Unit,
+    navigateToLogin: () -> Unit,
+    onLogout: (() -> Unit) -> Unit,
     application: Application,
     modifier: Modifier,
 ) {
     val todayRepeats by overviewViewModel.todayRepeats.observeAsState()
     val overdueRepeats by overviewViewModel.overdueRepeats.observeAsState()
+    // TODO: right now this also means whether user is logged in - need to move to higher lvl and
+    //  pass it down here
+    val isError by overviewViewModel.networkError.observeAsState()
 
-    overviewViewModel.networkError.observe( LocalLifecycleOwner.current) { isError ->
-        Timber.d("isError: $isError, overviewModel.netwErr: ${overviewViewModel.networkError.value}")
-        if (isError) {
-            Toast.makeText(application.applicationContext, "Network Error", Toast.LENGTH_LONG)
-                .show()
-            onAuthorisationError()
-        }
+    Timber.d("isError: $isError, overviewModel.netwErr: ${overviewViewModel.networkError.value}")
+    if (isError == true) {
+        // TODO: move it out of the composition, side-effect
+        Toast.makeText(application.applicationContext, "Network Error", Toast.LENGTH_SHORT)
+            .show()
+        navigateToLogin()
+    } else {
+        Repeats(
+            todayRepeats,
+            overdueRepeats,
+            onDoneRepeat = { repeat -> overviewViewModel.markAsDone(repeat) },
+            onOpenDetailedView = { repeat -> onDetailClicked(repeat.id) },
+            onLogout = onLogout,
+            modifier = modifier
+        )
     }
-
-    Repeats(
-        todayRepeats,
-        overdueRepeats,
-        onDoneRepeat = { repeat -> overviewViewModel.markAsDone(repeat) },
-        onOpenDetailedView = { repeat -> onDetailClicked(repeat.id) },
-        modifier = modifier
-    )
 }
 
 // TODO: find a way to have scrollable lists inside scrollable container
@@ -219,6 +221,7 @@ private fun Repeats(
     overdueRepeats: List<Repeat>?,
     onDoneRepeat: (Repeat) -> Unit,
     onOpenDetailedView: (Repeat) -> Unit,
+    onLogout: (() -> Unit) -> Unit,
     modifier: Modifier
 ) {
     LazyColumn(modifier = modifier
@@ -258,7 +261,7 @@ private fun Repeats(
             modifier = modifier
         )}
 
-        item(){ AddChunk()}
+        item(){ AddChunk(onLogout, modifier)}
     }
 }
 
@@ -308,7 +311,7 @@ fun OnboardingScreen(
 }
 
 @Composable
-fun AddChunk(modifier: Modifier = Modifier) {
+fun AddChunk(onLogout: (() -> Unit) -> Unit, modifier: Modifier = Modifier) {
     // TODO: implement add Chunk
     Column(modifier = modifier.padding(16.dp)) {
         var count by  rememberSaveable { mutableStateOf(0) }
@@ -325,6 +328,12 @@ fun AddChunk(modifier: Modifier = Modifier) {
             enabled = count < 10
         ) {
             Text("Add one")
+        }
+
+        Button(
+            onClick = { onLogout {} },
+        ) {
+            Text("Logout")
         }
     }
 }
@@ -409,6 +418,7 @@ fun TodayRepeatsPreviewDark() {
             listOf(),
             { repeat: Repeat  -> {}},
             { repeat: Repeat  -> {}},
+            { },
             Modifier
         )
     }

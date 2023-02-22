@@ -4,20 +4,13 @@ import androidx.navigation.NavType
 import androidx.navigation.navArgument
 
 
-sealed class Routes(val route: String) {
-    object SignUp : Routes("SignUp")
-    object ForgotPassword : Routes("ForgotPassword")
-    object Login : Routes("Login")
-    object Overview : Routes("Overview")
-}
-
 interface MemoriartyDestination {
 //    val icon: ImageVector
     val route: String
 }
 
 object Overview : MemoriartyDestination {
-    override val route = "overview"
+    override val route = "Overview"
 }
 
 object RepeatDetail : MemoriartyDestination {
@@ -30,15 +23,15 @@ object RepeatDetail : MemoriartyDestination {
 }
 
 object Login : MemoriartyDestination {
-    override val route = "login"
+    override val route = "Login"
 }
 
 object SignUp : MemoriartyDestination {
-    override val route = "signup"
+    override val route = "SignUp"
 }
 
 object ForgotPassword : MemoriartyDestination {
-    override val route = "forgot_password"
+    override val route = "ForgotPassword"
 }
 
 object Onboarding : MemoriartyDestination {

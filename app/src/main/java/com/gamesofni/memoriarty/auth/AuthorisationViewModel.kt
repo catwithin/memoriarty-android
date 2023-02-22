@@ -64,6 +64,13 @@ class AuthorisationViewModel (
             }
         }
     }
+
+    fun submitLogout(onLogoutSuccessNavigate: () -> Unit) {
+        viewModelScope.launch {
+            dataStoreRepository.removeSession()
+            onLogoutSuccessNavigate()
+        }
+    }
 }
 
 class AuthorisationViewModelFactory (

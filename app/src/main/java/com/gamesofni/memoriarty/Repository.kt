@@ -156,6 +156,7 @@ class DataStoreRepository(private val dataStore: DataStore<Preferences>) {
 
     suspend fun removeSession() {
         dataStore.edit { preference ->
+            Timber.tag("DataStoreRepository").e("removing cookie: %s", preference[SESSION_KEY])
             preference.remove(SESSION_KEY)
         }
     }
