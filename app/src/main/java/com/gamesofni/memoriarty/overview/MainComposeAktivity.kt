@@ -144,6 +144,12 @@ fun AppContainer(
                 modifier,
             )
         }
+        composable(route = Onboarding.route) {
+            OnboardingScreen(
+                onContinueClicked = { shouldShowOnboarding = false },
+                modifier,
+            )
+        }
     }
 
     if (shouldShowOnboarding) {
@@ -280,13 +286,15 @@ fun SectionName(sectionName: String) {
 @Composable
 fun OnboardingScreen(
     onContinueClicked: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier,
 ) {
     // TODO: implement a real onboarding screen, with the kitten
     Column(
-        modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+            .fillMaxSize()
+            .background(Color.White)
     ) {
         Text("Welcome to the Memoriarty!")
         Text("Let me show you around!")

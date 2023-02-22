@@ -38,5 +38,9 @@ object SignUp : MemoriartyDestination {
 }
 
 object ForgotPassword : MemoriartyDestination {
-    override val route = "forgotpassword"
+    override val route = "forgot_password"
+}
+
+object Onboarding : MemoriartyDestination {
+    override val route = "onboarding"
 }
