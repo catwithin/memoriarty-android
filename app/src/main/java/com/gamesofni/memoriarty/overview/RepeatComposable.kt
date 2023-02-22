@@ -131,26 +131,3 @@ internal fun RepeatComposable(
 //    }
 }
 
-
-// <---- Previews ---->
-
-@Preview(showBackground = true)
-@Composable
-fun RepeatPreviewDark() {
-    MemoriartyTheme(darkTheme = true, dynamicColor = true) {
-        RepeatComposable(
-            previewRepeat,
-            onDone = {}
-        )
-    }
-}
-
-@Preview(showBackground = true, backgroundColor = 1)
-@Composable
-fun RepeatPreviewLight() {
-    MemoriartyTheme(darkTheme = false, dynamicColor = true) {
-        RepeatComposable(
-            previewRepeat2,
-            onDone = {})
-    }
-}

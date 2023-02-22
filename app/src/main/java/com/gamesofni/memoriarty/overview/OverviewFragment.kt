@@ -1,5 +1,6 @@
 package com.gamesofni.memoriarty.overview
 
+import android.content.Context
 import android.os.Bundle
 import android.view.*
 import android.widget.Toast
@@ -10,9 +11,12 @@ import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.NavigationUI
 import androidx.recyclerview.widget.GridLayoutManager
+import com.gamesofni.memoriarty.DataStoreRepository
 import com.gamesofni.memoriarty.R
 import com.gamesofni.memoriarty.database.MemoriartyDatabase
 import com.gamesofni.memoriarty.databinding.TodayFragmentOverviewBinding
+import com.gamesofni.memoriarty.dataStore
+
 
 class OverviewFragment : Fragment() {
 
@@ -32,42 +36,43 @@ class OverviewFragment : Fragment() {
 
         val application = requireNotNull(this.activity).application
         val repeatsDao = MemoriartyDatabase.getInstance(application).repeatsDao
-        val viewModelFactory = OverviewViewModelFactory(repeatsDao, application)
-        val viewModel = ViewModelProvider(
-            this, viewModelFactory).get(OverviewViewModel::class.java)
+//        val viewModelFactory = OverviewViewModelFactory(repeatsDao, application,
+//            DataStoreRepository(dataStore))
+//        val viewModel = ViewModelProvider(
+//            this, viewModelFactory).get(OverviewViewModel::class.java)
 
 
 
-        val adapter = RepeatsGridAdapter(RepeatListener { description ->
-//            Toast.makeText(context, description, Toast.LENGTH_LONG).show()
-            viewModel.onRepeatClicked(description)
-        })
-        binding.photosGrid.adapter = adapter
-
-        viewModel.todayRepeats.observe(viewLifecycleOwner, Observer {
-            it?.let {
-                adapter.addHeaderAndSubmitList(it, viewModel.overdueRepeats.value)
-            }
-        })
-
-        viewModel.overdueRepeats.observe(viewLifecycleOwner, Observer {
-            it?.let {
-                adapter.addHeaderAndSubmitList(viewModel.todayRepeats.value, it)
-            }
-        })
-
-
-        viewModel.navigateToRepeatDetail.observe(viewLifecycleOwner, { description ->
-            description?.let {
-                // just starting without args:
-//                this.findNavController().navigate(R.id.action_overviewFragment_to_repeatDetailFragment)
-                // passing args with safe args plugin (it generates OverviewFragmentDirections
-                // class)
-                this.findNavController().navigate(OverviewFragmentDirections
-                    .actionOverviewFragmentToRepeatDetailFragment(description))
-                viewModel.onRepeatDetailNavigated()
-            }
-        })
+//        val adapter = RepeatsGridAdapter(RepeatListener { description ->
+////            Toast.makeText(context, description, Toast.LENGTH_LONG).show()
+//            viewModel.onRepeatClicked(description)
+//        })
+//        binding.photosGrid.adapter = adapter
+//
+//        viewModel.todayRepeats.observe(viewLifecycleOwner, Observer {
+//            it?.let {
+//                adapter.addHeaderAndSubmitList(it, viewModel.overdueRepeats.value)
+//            }
+//        })
+//
+//        viewModel.overdueRepeats.observe(viewLifecycleOwner, Observer {
+//            it?.let {
+//                adapter.addHeaderAndSubmitList(viewModel.todayRepeats.value, it)
+//            }
+//        })
+//
+//
+//        viewModel.navigateToRepeatDetail.observe(viewLifecycleOwner, { description ->
+//            description?.let {
+//                // just starting without args:
+////                this.findNavController().navigate(R.id.action_overviewFragment_to_repeatDetailFragment)
+//                // passing args with safe args plugin (it generates OverviewFragmentDirections
+//                // class)
+//                this.findNavController().navigate(OverviewFragmentDirections
+//                    .actionOverviewFragmentToRepeatDetailFragment(description))
+//                viewModel.onRepeatDetailNavigated()
+//            }
+//        })
 
         setHasOptionsMenu(true)
         // Allows Data Binding to Observe LiveData with the lifecycle of this Fragment
@@ -84,15 +89,15 @@ class OverviewFragment : Fragment() {
         binding.photosGrid.layoutManager = manager
 
         // Giving the binding access to the OverviewViewModel
-        binding.viewModel = viewModel
-
-        // Observer for the network error.
-        viewModel.networkError.observe(viewLifecycleOwner, Observer<Boolean> { isError ->
-            if (isError) {
-                Toast.makeText(activity, "Network Error", Toast.LENGTH_LONG).show()
-            }
-
-        })
+//        binding.viewModel = viewModel
+//
+//        // Observer for the network error.
+//        viewModel.networkError.observe(viewLifecycleOwner, Observer<Boolean> { isError ->
+//            if (isError) {
+//                Toast.makeText(activity, "Network Error", Toast.LENGTH_LONG).show()
+//            }
+//
+//        })
 
         return binding.root
     }

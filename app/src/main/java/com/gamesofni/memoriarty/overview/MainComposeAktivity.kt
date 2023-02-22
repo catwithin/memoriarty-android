@@ -371,13 +371,6 @@ fun NavHostController.navigateSingleTop(route: String) =
 
 // <---- Previews ---->
 
-@Preview(showBackground = true, widthDp = 320, heightDp = 320)
-@Composable
-fun OnboardingPreview() {
-    MemoriartyTheme(dynamicColor = false){
-        OnboardingScreen(onContinueClicked = {})
-    }
-}
 
 // TODO: maybe move out LayoutPreview Data from Activity code
 var previewRepeat = Repeat(

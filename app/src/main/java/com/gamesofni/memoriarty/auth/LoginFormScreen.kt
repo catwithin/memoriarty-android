@@ -141,8 +141,8 @@ private fun SignUpFormFields(onSubmitSignUp: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         EmailField(email)
-        UsernameField(username)
-        PasswordField(password)
+//        UsernameField(username)
+//        PasswordField(password)
         SubmitFormButton(onSubmitSignUp, "Register")
     }
 }
