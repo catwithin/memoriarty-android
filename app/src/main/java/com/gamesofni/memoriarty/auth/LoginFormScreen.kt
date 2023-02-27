@@ -1,5 +1,12 @@
 package com.gamesofni.memoriarty.auth
 
+import android.app.Application
+import android.widget.Toast
+import androidx.compose.animation.graphics.ExperimentalAnimationGraphicsApi
+import androidx.compose.animation.graphics.res.animatedVectorResource
+import androidx.compose.animation.graphics.res.rememberAnimatedVectorPainter
+import androidx.compose.animation.graphics.vector.AnimatedImageVector
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -8,11 +15,8 @@ import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,47 +29,93 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.gamesofni.memoriarty.R
 import com.gamesofni.memoriarty.ui.MemoriartyTypography
+import timber.log.Timber
 
 
 // TODO: move all sizes to dimen, modify for smaller screens
 // TODO: can pull up column modifier?
 
+@OptIn(ExperimentalAnimationGraphicsApi::class)
 @Composable
 fun LoginFormScreen(
     loginViewModel: AuthorisationViewModel,
     onForgotPassword: () -> Unit,
     onLoginSuccessNavigate: () -> Unit,
     onSwitchToSignup: () -> Unit,
+    application: Application,
     modifier: Modifier,
 ) {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = modifier
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .background(Color.White)
-                .fillMaxWidth(0.8f)
-                .fillMaxHeight(0.85f)
-//            .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-        ) {
-            Spacer(Modifier.weight(2f))
-            MemoriartyTitle()
+    val state by loginViewModel.status.observeAsState()
 
-            Spacer(Modifier.weight(1f))
-            LoginFormFields(onForgotPassword, onLoginSuccessNavigate, loginViewModel)
-
-            Spacer(Modifier.weight(2f))
-            SwitchBetweenSignupLogin(
-                onSwitchToSignup,
-                "New to Memoriarty?",
-                "Create account",
+    when {
+        state == MemoriartyLoginStatus.LOADING -> {
+            val image = AnimatedImageVector.animatedVectorResource(R.drawable.loading_animation)
+            Image(
+                painter = rememberAnimatedVectorPainter(image, true),
+                contentDescription = "Loading...",
+                modifier = modifier
+                    .size(248.dp)
+                    .fillMaxSize()
             )
+        }
+        state == MemoriartyLoginStatus.WRONG_LOGIN -> {
+            LaunchedEffect(true) {
+                Timber.d("launched wrong login toast")
+                Toast.makeText(application.applicationContext,
+                    "Wrong credentials, please try again", Toast.LENGTH_SHORT).show()
+                loginViewModel.clearStatus()
+            }
+        }
+        state == MemoriartyLoginStatus.NETWORK_ERROR -> {
+            LaunchedEffect(true) {
+                Timber.d("launched netw err toast")
+                Toast.makeText(application.applicationContext,
+                    "Network Error", Toast.LENGTH_SHORT).show()
+                loginViewModel.clearStatus()
+            }
+        }
+        state == MemoriartyLoginStatus.LOGGED_OUT -> {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = modifier
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .background(Color.White)
+                        .fillMaxWidth(0.8f)
+                        .fillMaxHeight(0.85f)
+//            .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    Spacer(Modifier.weight(2f))
+                    MemoriartyTitle()
 
-            Spacer(Modifier.weight(1f))
+                    Spacer(Modifier.weight(1f))
+                    LoginFormFields(onForgotPassword, loginViewModel)
+
+                    Spacer(Modifier.weight(2f))
+                    SwitchBetweenSignupLogin(
+                        onSwitchToSignup,
+                        "New to Memoriarty?",
+                        "Create account",
+                    )
+
+                    Spacer(Modifier.weight(1f))
+                }
+            }
+        }
+        state == MemoriartyLoginStatus.LOGGED_IN -> {
+            Timber.d("success toast")
+
+            LaunchedEffect(true) {
+                Toast.makeText(application.applicationContext,
+                    "Success! Hello, ${loginViewModel.username.value}!",
+                    Toast.LENGTH_SHORT).show()
+                onLoginSuccessNavigate()
+            }
         }
     }
 }
@@ -111,7 +161,6 @@ fun SignUpFormScreen(
 @Composable
 private fun LoginFormFields(
     onForgotPassword: () -> Unit,
-    onLoginSuccessNavigate: () -> Unit,
     loginViewModel: AuthorisationViewModel,
 ) {
     val username = loginViewModel.username.observeAsState()
@@ -124,7 +173,7 @@ private fun LoginFormFields(
     ) {
         UsernameField(username.value?:"") { loginViewModel.setUsername(it) }
         PasswordField(password.value?:"") { loginViewModel.setPassword(it) }
-        SubmitFormButton({loginViewModel.submitLogin(onLoginSuccessNavigate)},"Login")
+        SubmitFormButton({loginViewModel.submitLogin()},"Login")
         ForgotPasswordLink(onForgotPassword)
     }
 }

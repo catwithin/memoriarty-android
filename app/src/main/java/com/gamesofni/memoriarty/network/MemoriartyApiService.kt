@@ -34,7 +34,7 @@ interface MemoriartyApiService {
     @GET("today")
 //    @Headers({"Cache-Control: max-age=640000"; "User-Agent: My-App-Name"})
     // suspend to be able to call it from within a coroutine
-    suspend fun getRepeats(@Header("Cookie") cookie:  String): TodayResponseItem
+    suspend fun getRepeats(@Header("Cookie") cookie:  String): Response<TodayResponseItem>
 
 
     @POST("login")

@@ -13,7 +13,7 @@ import timber.log.Timber
 import java.lang.Exception
 
 
-enum class MemoriartyApiStatus { LOADING, ERROR, DONE }
+enum class MemoriartyApiStatus { LOADING, UNAUTHORISED, NETWORK_ERROR, DONE }
 
 
 class OverviewViewModel (
@@ -41,50 +41,44 @@ class OverviewViewModel (
     val overdueRepeats
         get() = _overdueRepeats
 
-    private val _networkError = MutableLiveData<Boolean>()
-    val networkError: LiveData<Boolean> = _networkError
+//    private val _networkError = MutableLiveData<Boolean>()
+//    val networkError: LiveData<Boolean> = _networkError
 
     init {
         Timber.i("OverviewViewModel initialized")
         refreshDataFromRepository()
     }
 
-    private fun refreshDataFromRepository() {
+    fun refreshDataFromRepository() {
         // TODO: how to make it auto-refresh when connection is re-established??
-        _networkError.value = false
+        _status.value = MemoriartyApiStatus.LOADING
         viewModelScope.launch {
-            _status.value = MemoriartyApiStatus.LOADING
             try {
                 Timber.tag("OverViewModel").d("before refresh")
-                repository.refreshTodayRepeats(userPreferences.first())
-                _status.value = MemoriartyApiStatus.DONE
-
+                val requestStatus = repository.refreshTodayRepeats(userPreferences.first())
+                _status.value = requestStatus
             } catch (e : Exception) {
-                // TODO: more specific unauthorised error handling
-                Timber.tag("OverViewModel").d("network error")
-                _networkError.value = true
+                Timber.tag("OverViewModel").e(e)
+                _status.value = MemoriartyApiStatus.NETWORK_ERROR
                 // TODO: think of how to handle errors: when use data from db, how show the
                 //  network error status etc.
 //                _status.value = if (todayRepeats.value.isNullOrEmpty())
 //                    MemoriartyApiStatus.ERROR else
-                Timber.e(e)
-                _status.value = MemoriartyApiStatus.DONE
             }
         }
     }
 
     fun markAsDone(repeat: Repeat) {
         // TODO: refactor out network connection handling
-        _networkError.value = false
+        _status.value = MemoriartyApiStatus.LOADING
         viewModelScope.launch {
             _status.value = MemoriartyApiStatus.LOADING
             try {
                 repository.updateRepeat(repeat, userPreferences.firstOrNull())
                 _status.value = MemoriartyApiStatus.DONE
             } catch (e : Exception) {
-                _networkError.value = true
+                _status.value = MemoriartyApiStatus.NETWORK_ERROR
                 Timber.e(e)
-                _status.value = MemoriartyApiStatus.DONE
             }
         }
     }

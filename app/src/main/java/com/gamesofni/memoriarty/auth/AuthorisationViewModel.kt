@@ -5,11 +5,11 @@ import androidx.lifecycle.*
 import com.gamesofni.memoriarty.DataStoreRepository
 import com.gamesofni.memoriarty.Repository
 import com.gamesofni.memoriarty.database.MemoriartyDatabase
-import com.gamesofni.memoriarty.overview.MemoriartyApiStatus
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.lang.Exception
 
+enum class MemoriartyLoginStatus { LOGGED_OUT, LOADING, WRONG_LOGIN, NETWORK_ERROR, LOGGED_IN }
 
 class AuthorisationViewModel (
     application: Application,
@@ -31,36 +31,30 @@ class AuthorisationViewModel (
     var password = _password
     fun setPassword(it: String) { _password.value = it }
 
-    // TODO: handle loading
-    private val _status = MutableLiveData<MemoriartyApiStatus>()
-    val status: LiveData<MemoriartyApiStatus> = _status
-    // TODO: handle errors
-    private val _networkError = MutableLiveData<Boolean>()
-    val networkError: LiveData<Boolean> = _networkError
-
+    private val _status = MutableLiveData<MemoriartyLoginStatus>()
+    val status: LiveData<MemoriartyLoginStatus> = _status
 
     init {
         Timber.i("AuthorisationViewModel initialized")
+        clearStatus()
     }
 
-    fun submitLogin(onLoginSuccessNavigate: () -> Unit) {
-        _networkError.value = false
+    fun submitLogin() {
+        _status.value = MemoriartyLoginStatus.LOADING
         viewModelScope.launch {
-            _status.value = MemoriartyApiStatus.LOADING
             try {
                 Timber.d("submitting login form with $username $password")
-                val sessionToken = repository.loginUser(username.value?:"", password.value?:"")
-                    .split(';')[0]
-                Timber.d("got sessionToken from API: $sessionToken")
+                val (token, responseStatus) = repository
+                    .loginUser(username.value?:"", password.value?:"")
+                val sessionToken = token.split(';')[0]
+                Timber.d("got sessionToken from API: $sessionToken; status response: $responseStatus")
                 if (sessionToken.isNotEmpty()) {
                     dataStoreRepository.storeSessionCookie(sessionToken)
-                    onLoginSuccessNavigate()
                 }
-                _status.value = MemoriartyApiStatus.DONE
+                _status.value = responseStatus
             } catch (e : Exception) {
-                _networkError.value = true
                 Timber.e(e)
-                _status.value = MemoriartyApiStatus.DONE
+                _status.value = MemoriartyLoginStatus.NETWORK_ERROR
             }
         }
     }
@@ -68,8 +62,13 @@ class AuthorisationViewModel (
     fun submitLogout(onLogoutSuccessNavigate: () -> Unit) {
         viewModelScope.launch {
             dataStoreRepository.removeSession()
+            clearStatus()
             onLogoutSuccessNavigate()
         }
+    }
+
+    fun clearStatus() {
+        _status.value = MemoriartyLoginStatus.LOGGED_OUT
     }
 }
 

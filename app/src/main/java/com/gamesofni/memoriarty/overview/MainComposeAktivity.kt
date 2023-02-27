@@ -7,6 +7,10 @@ import android.widget.Toast
 import androidx.compose.ui.unit.dp
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.graphics.ExperimentalAnimationGraphicsApi
+import androidx.compose.animation.graphics.res.animatedVectorResource
+import androidx.compose.animation.graphics.res.rememberAnimatedVectorPainter
+import androidx.compose.animation.graphics.vector.AnimatedImageVector
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -87,6 +91,8 @@ fun AppContainer(
     val currentBackStack by navController.currentBackStackEntryAsState()
     val currentDestination = currentBackStack?.destination
 
+    val authorised = loginViewModel.status.observeAsState()
+
 
     BackgroundImg()
 
@@ -96,15 +102,21 @@ fun AppContainer(
         modifier = modifier,
     ) {
         composable(route = Overview.route) {
-            Timber.d("navigated to Overview")
+            Timber.d("recomposed Overview")
             ListOfRepeats(
                 // TODO: state hoist overviewModel
                 overviewViewModel,
+                authorised,
                 onDetailClicked = { repeatId ->
                     navController.navigate("${RepeatDetail.route}/$repeatId")
                 },
-                navigateToLogin =  { navController.navigateSingleTop(Login.route) },
-                onLogout = { loginViewModel.submitLogout { navController.navigate(Login.route) } },
+                navigateToLogin =  {
+                    Timber.d("navigated to Login)")
+                    navController.navigateSingleTop(Login.route)
+                },
+                onLogout = { loginViewModel.submitLogout {
+                    navController
+                    .navigate(Login.route) } },
                 application = application,
                 modifier,
             )
@@ -118,13 +130,14 @@ fun AppContainer(
             RepeatDetailScreen(repeatId, modifier)
         }
         composable(route = Login.route) {
-            Timber.d("navigated to Login)")
+            Timber.d("recomposed LoginScreen)")
 
             LoginFormScreen(
                 loginViewModel = loginViewModel,
                 onForgotPassword = { navController.navigate(ForgotPassword.route) },
-                onLoginSuccessNavigate = { navController.navigate(Overview.route) },
+                onLoginSuccessNavigate = { navController.navigatePopping(Overview.route) },
                 onSwitchToSignup = { navController.navigate(SignUp.route) },
+                application = application,
                 modifier,
             )
         }
@@ -180,9 +193,11 @@ private fun BackgroundImg() {
     )
 }
 
+@OptIn(ExperimentalAnimationGraphicsApi::class)
 @Composable
 fun ListOfRepeats(
     overviewViewModel: OverviewViewModel,
+    authorised: State<MemoriartyLoginStatus?>,
     onDetailClicked: (String) -> Unit,
     navigateToLogin: () -> Unit,
     onLogout: (() -> Unit) -> Unit,
@@ -193,23 +208,56 @@ fun ListOfRepeats(
     val overdueRepeats by overviewViewModel.overdueRepeats.observeAsState()
     // TODO: right now this also means whether user is logged in - need to move to higher lvl and
     //  pass it down here
-    val isError by overviewViewModel.networkError.observeAsState()
+    val state by overviewViewModel.status.observeAsState()
 
-    Timber.d("isError: $isError, overviewModel.netwErr: ${overviewViewModel.networkError.value}")
-    if (isError == true) {
-        // TODO: move it out of the composition, side-effect
-        Toast.makeText(application.applicationContext, "Network Error", Toast.LENGTH_SHORT)
-            .show()
-        navigateToLogin()
-    } else {
-        Repeats(
-            todayRepeats,
-            overdueRepeats,
-            onDoneRepeat = { repeat -> overviewViewModel.markAsDone(repeat) },
-            onOpenDetailedView = { repeat -> onDetailClicked(repeat.id) },
-            onLogout = onLogout,
-            modifier = modifier
-        )
+    Timber.d("state: $state, overviewModel.status: ${overviewViewModel.status.value}")
+
+
+
+    if (state == MemoriartyApiStatus.NETWORK_ERROR) {
+        Text("Network error", modifier.background(Color.Yellow))
+    }
+
+    when {
+        state == MemoriartyApiStatus.LOADING -> {
+            //        var atEnd by remember { mutableStateOf(false) }
+            val image = AnimatedImageVector.animatedVectorResource(R.drawable.loading_animation)
+            Image(
+                painter = rememberAnimatedVectorPainter(image, true),
+                contentDescription = "Loading...",
+                modifier = modifier
+                    .size(248.dp)
+                    .fillMaxSize()
+                //                .clickable { atEnd = !atEnd }
+            )
+        }
+        state == MemoriartyApiStatus.UNAUTHORISED -> {
+            if (authorised.value == MemoriartyLoginStatus.LOGGED_IN) {
+                overviewViewModel.refreshDataFromRepository()
+            } else {
+                LaunchedEffect(true) {
+                    Toast.makeText(application.applicationContext,
+                        "Unauthorised, please login", Toast.LENGTH_SHORT).show()
+                    navigateToLogin()
+                }
+            }
+        }
+        state == MemoriartyApiStatus.NETWORK_ERROR -> {
+            LaunchedEffect(true) {
+                Toast.makeText(application.applicationContext,
+                    "Network Error", Toast.LENGTH_SHORT).show()
+            }
+        }
+        state == MemoriartyApiStatus.DONE -> {
+            Repeats(
+                todayRepeats,
+                overdueRepeats,
+                onDoneRepeat = { repeat -> overviewViewModel.markAsDone(repeat) },
+                onOpenDetailedView = { repeat -> onDetailClicked(repeat.id) },
+                onLogout = onLogout,
+                modifier = modifier
+            )
+        }
     }
 }
 
@@ -384,6 +432,13 @@ fun FloatingActionButton(
 
 fun NavHostController.navigateSingleTop(route: String) =
     this.navigate(route) { launchSingleTop = true }
+
+
+fun NavHostController.navigatePopping(route: String) =
+    this.navigate(route) {
+        launchSingleTop = true
+        popUpTo(route)
+    }
 
 
 // <---- Previews ---->

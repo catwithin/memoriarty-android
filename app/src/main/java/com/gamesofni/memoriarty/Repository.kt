@@ -7,12 +7,14 @@ import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
 import com.gamesofni.memoriarty.DataStoreRepository.PreferencesKeys.SESSION_KEY
+import com.gamesofni.memoriarty.auth.MemoriartyLoginStatus
 import com.gamesofni.memoriarty.database.MemoriartyDatabase
 import com.gamesofni.memoriarty.database.asDomainModel
 import com.gamesofni.memoriarty.database.repeatUpdatePayload
 import com.gamesofni.memoriarty.network.*
 import com.gamesofni.memoriarty.network.repeatEntityFromChunk
 import com.gamesofni.memoriarty.network.userEntityFromJson
+import com.gamesofni.memoriarty.overview.MemoriartyApiStatus
 import com.gamesofni.memoriarty.repeat.Repeat
 import com.gamesofni.memoriarty.user.User
 import kotlinx.coroutines.Dispatchers
@@ -48,17 +50,27 @@ class Repository(private val db: MemoriartyDatabase) {
         db.repeatsDao.getOverdueRepeats(atStartOfDay()))
     { it.asDomainModel()}
 
-    suspend fun refreshTodayRepeats(userPreferences: UserPreferences) {
+    suspend fun refreshTodayRepeats(userPreferences: UserPreferences): MemoriartyApiStatus {
         Timber.d("refresh repeats is called");
         Timber.d("session from settings: %s", userPreferences.session);
+        var result: MemoriartyApiStatus
         withContext(Dispatchers.IO) {
-            val today = MemoriartyApi.retrofitService.getRepeats(userPreferences.session)
-            // TODO: do in transaction
-            db.repeatsDao.clear()
-            db.repeatsDao.insertAll(today.asDatabaseRepeats())
-            db.userDao.deleteUser()
-            db.userDao.insert(userEntityFromJson(today.user))
+            val response = MemoriartyApi.retrofitService.getRepeats(userPreferences.session)
+            if (response.isSuccessful) {
+                val today = response.body()!!
+                // TODO: do in transaction
+                db.repeatsDao.clear()
+                db.repeatsDao.insertAll(today.asDatabaseRepeats())
+                db.userDao.deleteUser()
+                db.userDao.insert(userEntityFromJson(today.user))
+                result = MemoriartyApiStatus.DONE
+            } else if (response.code() == 401) {
+                result = MemoriartyApiStatus.UNAUTHORISED
+            } else {
+                result = MemoriartyApiStatus.NETWORK_ERROR
+            }
         }
+        return result
     }
 
     private fun atStartOfDay(): Long { return atDayBoundary(LocalTime.MIN) }
@@ -87,24 +99,29 @@ class Repository(private val db: MemoriartyDatabase) {
         }
     }
 
-    suspend fun loginUser(username: String, password: String): String {
+    suspend fun loginUser(username: String, password: String): Pair<String, MemoriartyLoginStatus> {
         Timber.d("login user: $username $password")
         val jsonObjectString = userLoginPayload(username, password).toString()
         val body: RequestBody = RequestBody.create(JSON_TYPE, jsonObjectString)
         var token = ""
+        var status: MemoriartyLoginStatus
         withContext(Dispatchers.IO) {
             val response = MemoriartyApi.retrofitService.loginUser(body)
             Timber.d("loginResponse: $response")
             if (response.isSuccessful()) {
-                // TODO: do in intercepter
-                token = response.headers().get("Set-Cookie") ?: ""
-
                 db.userDao.deleteUser()
                 // TODO: API 200 always sends user, but still feels bad to use !!
                 db.userDao.insert(userEntityFromJson(response.body()!!.user))
+                // TODO: maybe do in intercepter
+                token = response.headers().get("Set-Cookie") ?: ""
+                status = MemoriartyLoginStatus.LOGGED_IN
+            } else if (response.code() == 401) {
+                status = MemoriartyLoginStatus.WRONG_LOGIN
+            } else {
+                status = MemoriartyLoginStatus.NETWORK_ERROR
             }
         }
-        return token
+        return Pair(token, status)
     }
 }
 

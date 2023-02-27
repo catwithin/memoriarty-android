@@ -41,7 +41,7 @@ fun memoriartyApiStatus(statusImageView: ImageView,
             statusImageView.visibility = View.VISIBLE
             statusImageView.setImageResource(R.drawable.loading_animation)
         }
-        MemoriartyApiStatus.ERROR -> {
+        MemoriartyApiStatus.NETWORK_ERROR -> {
             statusImageView.visibility = View.VISIBLE
             statusImageView.setImageResource(R.drawable.ic_connection_error)
         }
