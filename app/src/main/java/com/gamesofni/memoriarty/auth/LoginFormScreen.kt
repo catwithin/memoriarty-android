@@ -1,6 +1,6 @@
 package com.gamesofni.memoriarty.auth
 
-import android.app.Application
+import android.content.Context
 import android.widget.Toast
 import androidx.compose.animation.graphics.ExperimentalAnimationGraphicsApi
 import androidx.compose.animation.graphics.res.animatedVectorResource
@@ -44,7 +44,7 @@ fun LoginFormScreen(
     onForgotPassword: () -> Unit,
     onLoginSuccessNavigate: () -> Unit,
     onSwitchToSignup: () -> Unit,
-    application: Application,
+    context: Context,
     modifier: Modifier,
 ) {
     val state by loginViewModel.status.observeAsState()
@@ -63,7 +63,7 @@ fun LoginFormScreen(
         state == MemoriartyLoginStatus.WRONG_LOGIN -> {
             LaunchedEffect(true) {
                 Timber.d("launched wrong login toast")
-                Toast.makeText(application.applicationContext,
+                Toast.makeText(context,
                     "Wrong credentials, please try again", Toast.LENGTH_SHORT).show()
                 loginViewModel.clearStatus()
             }
@@ -71,7 +71,7 @@ fun LoginFormScreen(
         state == MemoriartyLoginStatus.NETWORK_ERROR -> {
             LaunchedEffect(true) {
                 Timber.d("launched netw err toast")
-                Toast.makeText(application.applicationContext,
+                Toast.makeText(context,
                     "Network Error", Toast.LENGTH_SHORT).show()
                 loginViewModel.clearStatus()
             }
@@ -111,7 +111,7 @@ fun LoginFormScreen(
             Timber.d("success toast")
 
             LaunchedEffect(true) {
-                Toast.makeText(application.applicationContext,
+                Toast.makeText(context,
                     "Success! Hello, ${loginViewModel.username.value}!",
                     Toast.LENGTH_SHORT).show()
                 onLoginSuccessNavigate()

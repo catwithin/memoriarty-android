@@ -1,6 +1,7 @@
 package com.gamesofni.memoriarty.overview
 
 import android.app.Application
+import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
 import android.widget.Toast
@@ -27,15 +28,14 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.gamesofni.memoriarty.*
 import com.gamesofni.memoriarty.R
 import com.gamesofni.memoriarty.auth.*
+import com.gamesofni.memoriarty.overview.MemoriartyApiStatus.*
 import com.gamesofni.memoriarty.repeat.Repeat
 import com.gamesofni.memoriarty.repeat.RepeatDetailScreen
 import com.gamesofni.memoriarty.ui.MemoriartyTheme
@@ -49,16 +49,13 @@ class MainComposeAktivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val application = requireNotNull(this).application
-//        val repeatsDao = MemoriartyDatabase.getInstance(application).repeatsDao
 
         val overviewModelFactory = OverviewViewModelFactory(application,
             DataStoreRepository(dataStore)
         )
-
         val loginViewModelFactory = AuthorisationViewModelFactory(application,
             DataStoreRepository(dataStore)
         )
-
 
         setContent {
             MemoriartyTheme(dynamicColor = true) {
@@ -75,24 +72,19 @@ class MainComposeAktivity : ComponentActivity() {
 
 @Composable
 fun AppContainer(
+    modifier: Modifier = Modifier,
     overviewModelFactory: OverviewViewModelFactory,
     overviewViewModel: OverviewViewModel = viewModel(factory = overviewModelFactory),
     loginViewModelFactory: AuthorisationViewModelFactory,
     loginViewModel: AuthorisationViewModel = viewModel(factory = loginViewModelFactory),
     application: Application,
-    modifier: Modifier = Modifier,
 ) {
-    viewModelFactory {}
+//    viewModelFactory {}
     // TODO: save state of the shouldShowOnboarding into user's settings
     var shouldShowOnboarding by rememberSaveable { mutableStateOf(false) }
 
-    var currentScreen: MemoriartyDestination by remember { mutableStateOf(Overview) }
     val navController = rememberNavController()
-    val currentBackStack by navController.currentBackStackEntryAsState()
-    val currentDestination = currentBackStack?.destination
-
     val authorised = loginViewModel.status.observeAsState()
-
 
     BackgroundImg()
 
@@ -103,7 +95,7 @@ fun AppContainer(
     ) {
         composable(route = Overview.route) {
             Timber.d("recomposed Overview")
-            ListOfRepeats(
+            OverviewScreen(
                 // TODO: state hoist overviewModel
                 overviewViewModel,
                 authorised,
@@ -115,9 +107,9 @@ fun AppContainer(
                     navController.navigateSingleTop(Login.route)
                 },
                 onLogout = { loginViewModel.submitLogout {
-                    navController
-                    .navigate(Login.route) } },
-                application = application,
+                    navController.navigate(Login.route) }
+                },
+                context = application.applicationContext,
                 modifier,
             )
         }
@@ -137,7 +129,7 @@ fun AppContainer(
                 onForgotPassword = { navController.navigate(ForgotPassword.route) },
                 onLoginSuccessNavigate = { navController.navigatePopping(Overview.route) },
                 onSwitchToSignup = { navController.navigate(SignUp.route) },
-                application = application,
+                context = application.applicationContext,
                 modifier,
             )
         }
@@ -163,22 +155,6 @@ fun AppContainer(
         }
     }
 
-//    if (shouldShowOnboarding) {
-//        navController.navigateSingleTop(Onboarding.route)
-//        navigateToLogin()
-//        navController.navigateSingleTop(SignUp.route)
-//        navController.navigateSingleTop(ForgotPassword.route)
-//                LoginFormScreen(navController = rememberNavController())
-
-//                SignUpFormScreen(navController = rememberNavController())
-//            PasswordResetScreen(navController)
-//            OnboardingScreen(onContinueClicked = { shouldShowOnboarding = false })
-//        }
-//                else {
-//            ListOfRepeats(overviewViewModel, modifier)
-//            navController.navigateSingleTopTo(Login.route)
-//                }
-//    }
 }
 
 @Composable
@@ -195,31 +171,23 @@ private fun BackgroundImg() {
 
 @OptIn(ExperimentalAnimationGraphicsApi::class)
 @Composable
-fun ListOfRepeats(
+fun OverviewScreen(
     overviewViewModel: OverviewViewModel,
     authorised: State<MemoriartyLoginStatus?>,
     onDetailClicked: (String) -> Unit,
     navigateToLogin: () -> Unit,
     onLogout: (() -> Unit) -> Unit,
-    application: Application,
+    context: Context,
     modifier: Modifier,
 ) {
     val todayRepeats by overviewViewModel.todayRepeats.observeAsState()
     val overdueRepeats by overviewViewModel.overdueRepeats.observeAsState()
-    // TODO: right now this also means whether user is logged in - need to move to higher lvl and
-    //  pass it down here
     val state by overviewViewModel.status.observeAsState()
 
     Timber.d("state: $state, overviewModel.status: ${overviewViewModel.status.value}")
 
-
-
-    if (state == MemoriartyApiStatus.NETWORK_ERROR) {
-        Text("Network error", modifier.background(Color.Yellow))
-    }
-
-    when {
-        state == MemoriartyApiStatus.LOADING -> {
+    when (state) {
+        LOADING -> {
             //        var atEnd by remember { mutableStateOf(false) }
             val image = AnimatedImageVector.animatedVectorResource(R.drawable.loading_animation)
             Image(
@@ -231,25 +199,32 @@ fun ListOfRepeats(
                 //                .clickable { atEnd = !atEnd }
             )
         }
-        state == MemoriartyApiStatus.UNAUTHORISED -> {
+
+        UNAUTHORISED -> {
             if (authorised.value == MemoriartyLoginStatus.LOGGED_IN) {
                 overviewViewModel.refreshDataFromRepository()
             } else {
                 LaunchedEffect(true) {
-                    Toast.makeText(application.applicationContext,
+                    Toast.makeText(context,
                         "Unauthorised, please login", Toast.LENGTH_SHORT).show()
                     navigateToLogin()
                 }
             }
         }
-        state == MemoriartyApiStatus.NETWORK_ERROR -> {
+
+        NETWORK_ERROR -> {
+            Text("Network error",
+                Modifier.background(Color.Yellow)
+            )
+
             LaunchedEffect(true) {
-                Toast.makeText(application.applicationContext,
+                Toast.makeText(context,
                     "Network Error", Toast.LENGTH_SHORT).show()
             }
         }
-        state == MemoriartyApiStatus.DONE -> {
-            Repeats(
+
+        DONE -> {
+            ListOfRepeats(
                 todayRepeats,
                 overdueRepeats,
                 onDoneRepeat = { repeat -> overviewViewModel.markAsDone(repeat) },
@@ -258,13 +233,14 @@ fun ListOfRepeats(
                 modifier = modifier
             )
         }
+        null -> {}
     }
 }
 
 // TODO: find a way to have scrollable lists inside scrollable container
 // https://youtu.be/1ANt65eoNhQ?t=896
 @Composable
-private fun Repeats(
+private fun ListOfRepeats(
     todayRepeats: List<Repeat>?,
     overdueRepeats: List<Repeat>?,
     onDoneRepeat: (Repeat) -> Unit,
@@ -283,14 +259,11 @@ private fun Repeats(
 
         items(
             todayRepeats.orEmpty(),
-            // TODO: thoroughly test which items are recomposed - can we do btr
             key = { it.id }
-        ) {
-                repeat -> RepeatComposable(
-            repeat = repeat,
-            onDone = onDoneRepeat,
-            onOpenDetailedView = onOpenDetailedView,
-            modifier = modifier
+        ) { repeat -> RepeatComposable(
+              repeat = repeat,
+              onDone = onDoneRepeat,
+              onOpenDetailedView = onOpenDetailedView,
         )}
 
         item(){ SectionName(
@@ -299,14 +272,11 @@ private fun Repeats(
 
         items(
             overdueRepeats.orEmpty(),
-            // TODO: thoroughly test which items are recomposed - can we do btr
             key = { it.id }
-        ) {
-                repeat -> RepeatComposable(
-            repeat = repeat,
-            onDone = onDoneRepeat,
-            onOpenDetailedView = onOpenDetailedView,
-            modifier = modifier
+        ) { repeat -> RepeatComposable(
+              repeat = repeat,
+              onDone = onDoneRepeat,
+              onOpenDetailedView = onOpenDetailedView,
         )}
 
         item(){ AddChunk(onLogout, modifier)}
@@ -317,22 +287,6 @@ private fun Repeats(
 fun SectionName(sectionName: String) {
     Text(sectionName)
 }
-
-
-//@Composable
-//fun RepeatsSection(
-//    sectionName: String,
-//    repeats: List<Repeat>?,
-//    onDoneRepeat: (Repeat) -> Unit,
-//) {
-//    Column() {
-//
-//    }
-//    ListOfRepeats(
-//        repeats = repeats,
-//        onDoneRepeat = onDoneRepeat,
-//    )
-//}
 
 @Composable
 fun OnboardingScreen(
@@ -373,7 +327,7 @@ fun AddChunk(onLogout: (() -> Unit) -> Unit, modifier: Modifier = Modifier) {
         Button(
             onClick = { count++ },
             Modifier.padding(top = 8.dp),
-            enabled = count < 10
+            enabled = count < 2
         ) {
             Text("Add one")
         }
@@ -385,32 +339,6 @@ fun AddChunk(onLogout: (() -> Unit) -> Unit, modifier: Modifier = Modifier) {
         }
     }
 }
-
-
-// TODO: find a way to have scrollable lists inside scrollable container
-//@Composable
-//internal fun ListOfRepeats(
-//    repeats: List<Repeat>?,
-//    onDoneRepeat: (Repeat) -> Unit,
-//    modifier: Modifier = Modifier,
-//) {
-//    LazyColumn(modifier = modifier
-//        .padding(vertical = 4.dp)
-////        .verticalScroll(rememberScrollState(), enabled = false)
-//    ) {
-//        items(
-//            repeats.orEmpty(),
-//            // TODO: thoroughly test which items are recomposed - can we do btr
-//            key = { it.id }
-//        ) {
-//            repeat -> RepeatComposable(
-//                repeat = repeat,
-//                onDone = onDoneRepeat,
-//                modifier = modifier
-//            )
-//        }
-//    }
-//}
 
 @Composable
 fun FloatingActionButton(
@@ -468,7 +396,7 @@ var previewRepeat2 = Repeat(
 @Composable
 fun TodayRepeatsPreviewDark() {
     MemoriartyTheme(darkTheme = true, dynamicColor = false) {
-        Repeats(
+        ListOfRepeats(
             listOf(previewRepeat, previewRepeat2),
             listOf(),
             { repeat: Repeat  -> {}},

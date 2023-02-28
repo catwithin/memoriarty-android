@@ -23,11 +23,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.gamesofni.memoriarty.R
 import com.gamesofni.memoriarty.repeat.Repeat
-import com.gamesofni.memoriarty.ui.MemoriartyTheme
 
 
 @Composable
@@ -35,7 +33,6 @@ internal fun RepeatComposable(
     repeat: Repeat,
     onDone: (Repeat) -> Unit,
     onOpenDetailedView: (Repeat) -> Unit,
-    modifier: Modifier = Modifier
 ) {
     // TODO: this state is not saved on device rotation (recyvled composable?)
     var expanded by rememberSaveable { mutableStateOf(false) }
