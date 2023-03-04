@@ -135,16 +135,25 @@ fun AppContainer(
         }
         composable(route = SignUp.route) {
             SignUpFormScreen(
-                onSubmitSignup = { navController.navigate(Overview.route) },
+//                onSubmitSignup = { navController.navigate(Overview.route) },
+                email = loginViewModel.email,
+                username = loginViewModel.username,
+                password = loginViewModel.password,
+                setEmail =  { s: String -> loginViewModel.setEmail(s) },
+                setUsername =  { s: String -> loginViewModel.setUsername(s) },
+                setPassword =  { s: String -> loginViewModel.setPassword(s) },
                 onSwitchToLogin =  { navController.navigate(Login.route) },
-                modifier,
+                onSubmitSignup =  { loginViewModel.submitSignup() },
+                modifier = modifier,
             )
         }
         composable(route = ForgotPassword.route) {
             PasswordResetScreen(
+                email = loginViewModel.email,
                 onSubmitPasswordReset = { navController.navigate(Overview.route) },
                 onSwitchToLogin =  { navController.navigate(Login.route) },
-                modifier,
+                onEmailChange =  { s: String -> loginViewModel.setEmail(s) },
+                modifier = modifier,
             )
         }
         composable(route = Onboarding.route) {

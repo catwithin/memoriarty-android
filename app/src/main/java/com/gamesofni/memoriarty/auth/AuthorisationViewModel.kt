@@ -22,6 +22,9 @@ class AuthorisationViewModel (
     val user
         get() = _user
 
+    private var _email = MutableLiveData("")
+    val email = _email
+    fun setEmail(it: String) { _email.value = it }
 
     private var _username = MutableLiveData("")
     val username = _username
@@ -59,6 +62,28 @@ class AuthorisationViewModel (
         }
     }
 
+
+    fun submitSignup() {
+        _status.value = MemoriartyLoginStatus.LOADING
+        viewModelScope.launch {
+            try {
+                Timber.d("submitting login form with $username $password")
+                val (token, responseStatus) = repository
+                    .loginUser(username.value?:"", password.value?:"")
+                val sessionToken = token.split(';')[0]
+                Timber.d("got sessionToken from API: $sessionToken; status response: $responseStatus")
+                if (sessionToken.isNotEmpty()) {
+                    dataStoreRepository.storeSessionCookie(sessionToken)
+                }
+                _status.value = responseStatus
+            } catch (e : Exception) {
+                Timber.e(e)
+                _status.value = MemoriartyLoginStatus.NETWORK_ERROR
+            }
+        }
+    }
+
+    // TODO: check wheter backend has invalidate session/logout callbk
     fun submitLogout(onLogoutSuccessNavigate: () -> Unit) {
         viewModelScope.launch {
             dataStoreRepository.removeSession()

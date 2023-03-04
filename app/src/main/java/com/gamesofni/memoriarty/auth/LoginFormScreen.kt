@@ -17,6 +17,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,10 +26,10 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.MutableLiveData
 import com.gamesofni.memoriarty.R
 import com.gamesofni.memoriarty.ui.MemoriartyTypography
 import timber.log.Timber
@@ -122,6 +123,12 @@ fun LoginFormScreen(
 
 @Composable
 fun SignUpFormScreen(
+    email: MutableLiveData<String>,
+    username: MutableLiveData<String>,
+    password: MutableLiveData<String>,
+    setEmail: (String) -> Unit,
+    setUsername: (String) -> Unit,
+    setPassword: (String) -> Unit,
     onSubmitSignup: () -> Unit,
     onSwitchToLogin: () -> Unit,
     modifier: Modifier,
@@ -143,7 +150,8 @@ fun SignUpFormScreen(
             MemoriartyTitle()
 
             Spacer(Modifier.weight(1f))
-            SignUpFormFields(onSubmitSignup)
+            SignUpFormFields(email, username, password, setEmail, setUsername, setPassword,
+                onSubmitSignup)
 
             Spacer(Modifier.weight(2f))
             SwitchBetweenSignupLogin(
@@ -179,19 +187,26 @@ private fun LoginFormFields(
 }
 
 @Composable
-private fun SignUpFormFields(onSubmitSignUp: () -> Unit) {
-    val email = remember { mutableStateOf(TextFieldValue()) }
-    val username = remember { mutableStateOf(TextFieldValue()) }
-    val password = remember { mutableStateOf(TextFieldValue()) }
-
+private fun SignUpFormFields(
+    email: MutableLiveData<String>,
+    username: MutableLiveData<String>,
+    password: MutableLiveData<String>,
+    setEmail: (String) -> Unit,
+    setUsername: (String) -> Unit,
+    setPassword: (String) -> Unit,
+    onSubmitSignUp: () -> Unit
+) {
+    val eml by email.observeAsState()
+    val usrnm by username.observeAsState()
+    val pwd by password.observeAsState()
     Column(
         modifier = Modifier.padding(horizontal = 40.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        EmailField(email)
-//        UsernameField(username)
-//        PasswordField(password)
+        EmailField(eml?:"") { setEmail(it) }
+        UsernameField(usrnm?:"") { setUsername(it) }
+        PasswordField(pwd?:"") { setPassword(it) }
         SubmitFormButton(onSubmitSignUp, "Register")
     }
 }
@@ -200,11 +215,11 @@ private fun SignUpFormFields(onSubmitSignUp: () -> Unit) {
 // TODO: find TextFields with validation
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EmailField(email: MutableState<TextFieldValue>) {
+fun EmailField(email: String, onChange: (String) -> Unit) {
     TextField(
         label = { Text(text = "Email") },
-        value = email.value,
-        onValueChange = { email.value = it },
+        value = email,
+        onValueChange = { onChange(it) },
         modifier = Modifier.padding(bottom = 16.dp),
     )
 }
