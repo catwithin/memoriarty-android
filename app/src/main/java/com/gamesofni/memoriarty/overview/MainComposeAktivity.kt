@@ -124,7 +124,7 @@ fun AppContainer(
         composable(route = Login.route) {
             Timber.d("recomposed LoginScreen)")
 
-            LoginFormScreen(
+            LoginScreen(
                 loginViewModel = loginViewModel,
                 onForgotPassword = { navController.navigate(ForgotPassword.route) },
                 onLoginSuccessNavigate = { navController.navigatePopping(Overview.route) },
@@ -134,11 +134,12 @@ fun AppContainer(
             )
         }
         composable(route = SignUp.route) {
-            SignUpFormScreen(
+            SignUpScreen(
 //                onSubmitSignup = { navController.navigate(Overview.route) },
                 email = loginViewModel.email,
                 username = loginViewModel.username,
                 password = loginViewModel.password,
+                status = loginViewModel.status,
                 setEmail =  { s: String -> loginViewModel.setEmail(s) },
                 setUsername =  { s: String -> loginViewModel.setUsername(s) },
                 setPassword =  { s: String -> loginViewModel.setPassword(s) },
