@@ -17,9 +17,9 @@ class RepeatViewModel (
 ) : AndroidViewModel(application) {
 
     var repeat = MutableLiveData<RepeatEntity?>()
-    var idString = Transformations.map(repeat) { r -> r?.repeatId }
+    var idString = repeat.map() { r -> r?.repeatId }
 
-    val repeatTransformed = Transformations.map(repeat) { repeat ->
+    val repeatTransformed = repeat.map() { repeat ->
         formatToHtml(repeat, application.resources)
     }
 

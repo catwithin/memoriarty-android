@@ -5,7 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.map
 import com.gamesofni.memoriarty.DataStoreRepository.PreferencesKeys.SESSION_KEY
 import com.gamesofni.memoriarty.auth.MemoriartyLoginStatus
 import com.gamesofni.memoriarty.database.MemoriartyDatabase
@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody
 import org.json.JSONObject
 import timber.log.Timber
@@ -40,15 +41,14 @@ val Context.dataStore by preferencesDataStore(
 
 class Repository(private val db: MemoriartyDatabase) {
 
-    val user: LiveData<User> = Transformations.map(db.userDao.getUser()) {it.asDomainModel()}
+    val user: LiveData<User> = db.userDao.getUser().map() {it.asDomainModel()}
 
-    val todayRepeats: LiveData<List<Repeat>> = Transformations.map(
-        db.repeatsDao.getTodayRepeats(atStartOfDay(), atEndOfDay()))
-            { it.asDomainModel()}
+    val todayRepeats: LiveData<List<Repeat>> = db.repeatsDao.getTodayRepeats(atStartOfDay(), atEndOfDay())
+        .map() { it.asDomainModel()}
 
-    val overdueRepeats: LiveData<List<Repeat>> = Transformations.map(
-        db.repeatsDao.getOverdueRepeats(atStartOfDay()))
-    { it.asDomainModel()}
+    val overdueRepeats: LiveData<List<Repeat>> =
+        db.repeatsDao.getOverdueRepeats(atStartOfDay())
+            .map() { it.asDomainModel()}
 
     suspend fun refreshTodayRepeats(userPreferences: UserPreferences): MemoriartyApiStatus {
         Timber.d("refresh repeats is called");
@@ -83,7 +83,7 @@ class Repository(private val db: MemoriartyDatabase) {
         return boundaryOfDayInUTC.toInstant().toEpochMilli()
     }
 
-    private val JSON_TYPE = MediaType.parse("application/json")
+    private val JSON_TYPE = "application/json".toMediaType()
 
     suspend fun updateRepeat(repeat: Repeat, userPreferences: UserPreferences?) {
         Timber.d("update repeat is called with $repeat");
