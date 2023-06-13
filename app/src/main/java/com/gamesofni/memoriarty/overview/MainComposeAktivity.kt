@@ -90,9 +90,13 @@ fun AppContainer(
 
     NavHost(
         navController = navController,
-        startDestination = Overview.route,
+        startDestination = Loading.route,
         modifier = modifier,
     ) {
+        composable(route = Loading.route) {
+            WelcomeScreen(modifier)
+        }
+
         composable(route = Overview.route) {
             Timber.d("recomposed Overview")
             OverviewScreen(

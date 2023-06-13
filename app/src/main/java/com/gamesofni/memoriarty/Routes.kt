@@ -9,6 +9,10 @@ interface MemoriartyDestination {
     val route: String
 }
 
+object Loading : MemoriartyDestination {
+    override val route = "Loading"
+}
+
 object Overview : MemoriartyDestination {
     override val route = "Overview"
 }
