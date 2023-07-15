@@ -22,6 +22,7 @@ fun PasswordResetScreen(
     onEmailChange: (String) -> Unit,
     onSubmitPasswordReset: () -> Unit,
     onSwitchToLogin: () -> Unit,
+    onLogout: () -> Unit,
     modifier: Modifier,
 ) {
     Box(

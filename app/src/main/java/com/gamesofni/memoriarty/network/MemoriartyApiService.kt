@@ -43,6 +43,14 @@ interface MemoriartyApiService {
         "Referer: https://memoriarty.herokuapp.com/"
     )
     suspend fun loginUser(@Body body: RequestBody): Response<LoginResponseJson>
+
+    @POST("register")
+    @Headers(
+        "Content-Type: application/json",
+        "Referer: https://memoriarty.herokuapp.com/"
+    )
+    suspend fun registerUser(@Body body: RequestBody): Response<SignUpResponseJson>
+
 }
 
 // initialize the Retrofit service

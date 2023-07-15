@@ -9,7 +9,11 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.lang.Exception
 
-enum class MemoriartyLoginStatus { LOGGED_OUT, LOADING, WRONG_LOGIN, NETWORK_ERROR, LOGGED_IN }
+enum class MemoriartyLoginStatus { LOGGED_OUT, LOADING,
+    UNCONFIRMED, CONFLICT,
+    WRONG_LOGIN, NETWORK_ERROR,
+    LOGGED_IN
+}
 
 class AuthorisationViewModel (
     application: Application,
@@ -67,9 +71,9 @@ class AuthorisationViewModel (
         _status.value = MemoriartyLoginStatus.LOADING
         viewModelScope.launch {
             try {
-                Timber.d("submitting login form with $username $password")
+                Timber.d("submitting login form with $email $username $password")
                 val (token, responseStatus) = repository
-                    .loginUser(username.value?:"", password.value?:"")
+                    .signUpUser(email.value?:"", username.value?:"", password.value?:"")
                 val sessionToken = token.split(';')[0]
                 Timber.d("got sessionToken from API: $sessionToken; status response: $responseStatus")
                 if (sessionToken.isNotEmpty()) {

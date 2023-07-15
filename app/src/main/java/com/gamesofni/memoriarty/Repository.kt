@@ -108,7 +108,7 @@ class Repository(private val db: MemoriartyDatabase) {
         withContext(Dispatchers.IO) {
             val response = MemoriartyApi.retrofitService.loginUser(body)
             Timber.d("loginResponse: $response")
-            if (response.isSuccessful()) {
+            if (response.isSuccessful) {
                 db.userDao.deleteUser()
                 // TODO: API 200 always sends user, but still feels bad to use !!
                 db.userDao.insert(userEntityFromJson(response.body()!!.user))
@@ -123,6 +123,33 @@ class Repository(private val db: MemoriartyDatabase) {
         }
         return Pair(token, status)
     }
+
+    suspend fun signUpUser(email: String, username: String, password: String): Pair<String, MemoriartyLoginStatus> {
+        Timber.d("signup user: $email $username $password")
+        val jsonObjectString = userSignUpPayload(email, username, password).toString()
+        val body: RequestBody = RequestBody.create(JSON_TYPE, jsonObjectString)
+        var token = ""
+        var status: MemoriartyLoginStatus
+        withContext(Dispatchers.IO) {
+            val response = MemoriartyApi.retrofitService.registerUser(body)
+            Timber.d("signup Response: $response")
+            if (response.isSuccessful) {
+                db.userDao.deleteUser()
+                // TODO: API 200 always sends user, but still feels bad to use !!
+                val user = response.body()!!.user!!
+                db.userDao.insert(userEntityFromJson(user))
+                // TODO: maybe do in intercepter
+                token = response.headers().get("Set-Cookie") ?: ""
+                status = if (user.unconfirmed) MemoriartyLoginStatus.UNCONFIRMED else MemoriartyLoginStatus.LOGGED_IN
+            } else if (response.code() == 409) {
+                status = MemoriartyLoginStatus.CONFLICT
+            } else {
+                status = MemoriartyLoginStatus.NETWORK_ERROR
+            }
+        }
+        return Pair(token, status)
+    }
+
 }
 
 fun userLoginPayload (username: String, password: String): JSONObject {
@@ -132,6 +159,11 @@ fun userLoginPayload (username: String, password: String): JSONObject {
     return jsonObject
 }
 
+fun userSignUpPayload (email: String, username: String, password: String): JSONObject {
+    val jsonObject = userLoginPayload(username, password)
+    jsonObject.put("email", email)
+    return jsonObject
+}
 
 data class UserPreferences(
     val session: String,

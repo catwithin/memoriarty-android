@@ -90,7 +90,7 @@ fun AppContainer(
 
     NavHost(
         navController = navController,
-        startDestination = Loading.route,
+        startDestination = Overview.route,
         modifier = modifier,
     ) {
         composable(route = Loading.route) {
@@ -149,6 +149,11 @@ fun AppContainer(
                 setPassword =  { s: String -> loginViewModel.setPassword(s) },
                 onSwitchToLogin =  { navController.navigate(Login.route) },
                 onSubmitSignup =  { loginViewModel.submitSignup() },
+                context = application.applicationContext,
+                clearStatus = { loginViewModel.clearStatus() },
+                onLogout = { loginViewModel.submitLogout {
+                    navController.navigate(Login.route) }
+                },
                 modifier = modifier,
             )
         }
@@ -158,6 +163,9 @@ fun AppContainer(
                 onSubmitPasswordReset = { navController.navigate(Overview.route) },
                 onSwitchToLogin =  { navController.navigate(Login.route) },
                 onEmailChange =  { s: String -> loginViewModel.setEmail(s) },
+                onLogout = { loginViewModel.submitLogout {
+                    navController.navigate(Login.route) }
+                },
                 modifier = modifier,
             )
         }

@@ -35,9 +35,9 @@ fun LoginScreen(
 ) {
     val state by loginViewModel.status.observeAsState()
 
-    when {
-        state == MemoriartyLoginStatus.LOADING -> { LoadingAnimation(modifier) }
-        state == MemoriartyLoginStatus.WRONG_LOGIN -> {
+    when (state) {
+        MemoriartyLoginStatus.LOADING -> { LoadingAnimation(modifier) }
+        MemoriartyLoginStatus.WRONG_LOGIN -> {
             LaunchedEffect(true) {
                 Timber.d("launched wrong login toast")
                 Toast.makeText(context,
@@ -45,7 +45,7 @@ fun LoginScreen(
                 loginViewModel.clearStatus()
             }
         }
-        state == MemoriartyLoginStatus.NETWORK_ERROR -> {
+        MemoriartyLoginStatus.NETWORK_ERROR -> {
             LaunchedEffect(true) {
                 Timber.d("launched netw err toast")
                 Toast.makeText(context,
@@ -53,15 +53,7 @@ fun LoginScreen(
                 loginViewModel.clearStatus()
             }
         }
-        state == MemoriartyLoginStatus.LOGGED_OUT -> {
-            LoginForm(
-                modifier,
-                onForgotPassword,
-                loginViewModel,
-                onSwitchToSignup
-            )
-        }
-        state == MemoriartyLoginStatus.LOGGED_IN -> {
+        MemoriartyLoginStatus.LOGGED_IN -> {
             Timber.d("success toast")
 
             LaunchedEffect(true) {
@@ -70,6 +62,18 @@ fun LoginScreen(
                     Toast.LENGTH_SHORT).show()
                 onLoginSuccessNavigate()
             }
+        }
+        MemoriartyLoginStatus.UNCONFIRMED -> {
+            UnconfirmedEmailScreen(modifier)
+        }
+
+        else -> {
+            LoginForm(
+                modifier,
+                onForgotPassword,
+                loginViewModel,
+                onSwitchToSignup
+            )
         }
     }
 }
