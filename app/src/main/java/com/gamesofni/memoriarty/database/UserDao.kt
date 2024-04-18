@@ -19,7 +19,7 @@ interface UserDao {
 // no update? if couldn't change on server - error and tz isn't changed? otherwise -
 // insert=replace with the response from the server
 
-    @Delete
+    @Query("DELETE FROM user")
     suspend fun deleteUser()
 
 }
