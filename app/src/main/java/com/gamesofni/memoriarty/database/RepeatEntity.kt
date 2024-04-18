@@ -31,6 +31,8 @@ data class RepeatEntity (
     @ColumnInfo(name = "project_id")
     var projectId: String = "",
 
+//    @ColumnInfo(name = "repeats")
+//    var repeats: List<Date> = listOf(),
 
 )
 
@@ -42,6 +44,7 @@ fun List<RepeatEntity>.asDomainModel(): List<Repeat> {
             description = it.description,
             toRepeatOn = it.nextRepeat,
             project = it.projectId,
+//            repeats = it.repeats,
         )
     }
 }
@@ -62,6 +65,9 @@ fun repeatAsJson(repeat: Repeat): JSONObject {
     repeatObject.put("date", repeat.createdDateToServerFormat)
     repeatObject.put("project_id", repeat.project)
     repeatObject.put("repeats", JSONArray().put(repeat.nextRepeatToServerFormat))
+//    val jsonArray = JSONArray()
+//    repeat.nextRepeatsToServerFormat.map {jsonArray.put(it)}
+//    repeatObject.put("repeats", jsonArray)
     repeatObject.put("next_repeat", repeat.nextRepeatToServerFormat)
 
     return repeatObject

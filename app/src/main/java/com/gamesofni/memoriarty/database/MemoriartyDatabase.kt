@@ -61,4 +61,10 @@ class Converters {
     fun dateToTimestamp(date: Date?): Long? {
         return date?.time
     }
+
+    @TypeConverter
+    fun listOfDatesToString(value : List<Date>): String = Json.encodeToString(value)
+
+    @TypeConverter
+    fun stringToListOfDates(value: String): List<Date> = Json.decodeFromString(value)
 }

@@ -2,6 +2,7 @@ package com.gamesofni.memoriarty.database
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -18,7 +19,7 @@ interface UserDao {
 // no update? if couldn't change on server - error and tz isn't changed? otherwise -
 // insert=replace with the response from the server
 
-    @Query("DELETE FROM user")
+    @Delete
     suspend fun deleteUser()
 
 }

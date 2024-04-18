@@ -12,6 +12,7 @@ data class Repeat(
     val description: String,
     val toRepeatOn: Date,
     val project: String,
+//    val repeats: List<Date>,
     ) {
 
     val shortDescription: String
@@ -29,4 +30,6 @@ data class Repeat(
     val nextRepeatToServerFormat: Instant?
         get() = toRepeatOn.toInstant()
 
+//    val nextRepeatsToServerFormat: List<Instant>
+//        get() = repeats.map{ it.toInstant() }
 }
